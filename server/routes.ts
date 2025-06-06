@@ -63,12 +63,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
             req.session.questionnaireData.inputData
           );
 
+          // Extract summary from Bedrock response
+          const { summary, ...statsOnly } = generatedStats;
+          
           // Update analysis record with results
           await storage.createUserAnalysis({
             userId: user.id,
             inputMethod: req.session.questionnaireData.inputMethod,
             inputData: req.session.questionnaireData.inputData,
-            analysisResult: { ...generatedStats, status: 'completed' },
+            analysisResult: { ...statsOnly, status: 'completed' },
+            summary: summary || null,
           });
 
           // Clear the session data
@@ -159,14 +163,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Stats not found" });
       }
 
-      // Get latest analysis status
+      // Get latest analysis status and summary
       const analyses = await storage.getUserAnalysis(userId);
       const latestAnalysis = analyses[analyses.length - 1];
       const analysisStatus = latestAnalysis?.analysisResult?.status || 'none';
+      const analysisSummary = latestAnalysis?.summary || null;
 
       res.json({ 
         stats, 
         analysisStatus,
+        analysisSummary,
         hasAnalysisData: analyses.length > 0 
       });
     } catch (error) {

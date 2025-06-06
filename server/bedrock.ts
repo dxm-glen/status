@@ -20,14 +20,14 @@ export interface UserStats {
   level: number;
 }
 
-export async function analyzeUserInput(inputMethod: string, inputData: any): Promise<UserStats> {
+export async function analyzeUserInput(inputMethod: string, inputData: any): Promise<UserStats & { summary?: string }> {
   let analysisPrompt = "";
   
   if (inputMethod === "questionnaire") {
     // 질문지 답변을 기반으로 프롬프트 생성
     const answers = inputData;
     analysisPrompt = `
-사용자가 다음 질문들에 답한 내용을 분석해서 RPG 캐릭터의 7가지 스탯을 생성해주세요.
+사용자가 다음 질문들에 답한 내용을 분석해서 RPG 캐릭터의 7가지 스탯과 성격 요약을 생성해주세요.
 각 스탯은 1-99 사이의 값으로, 총합이 200-350 사이가 되도록 해주세요.
 
 질문 답변:
@@ -37,14 +37,17 @@ export async function analyzeUserInput(inputMethod: string, inputData: any): Pro
 4. 새로운 환경에서의 반응: ${answers.q4}
 5. 성취감을 느끼는 순간: ${answers.q5}
 
-다음 7가지 스탯을 JSON 형식으로 분석해주세요:
-- intelligence: 지능 (논리적 사고, 문제 해결 능력)
-- creativity: 창의성 (새로운 아이디어, 예술적 감각)
-- social: 사회성 (소통 능력, 대인 관계)
-- physical: 체력 (신체 활동, 운동 능력)
-- emotional: 감성 (감정 인식, 공감 능력)
-- focus: 집중력 (주의력, 지속력)
-- adaptability: 적응력 (변화 수용, 유연성)
+다음 형식으로 JSON을 생성해주세요:
+{
+  "intelligence": 숫자값,
+  "creativity": 숫자값,
+  "social": 숫자값,
+  "physical": 숫자값,
+  "emotional": 숫자값,
+  "focus": 숫자값,
+  "adaptability": 숫자값,
+  "summary": "답변을 바탕으로 파악한 사용자의 성격과 특성을 2-3문장으로 요약"
+}
 
 JSON만 출력하고 다른 설명은 없이 응답해주세요.
 `;
@@ -52,20 +55,23 @@ JSON만 출력하고 다른 설명은 없이 응답해주세요.
     // GPT 분석 결과를 기반으로 프롬프트 생성
     const gptResponse = inputData.gptResponse;
     analysisPrompt = `
-사용자가 GPT로부터 받은 다음 자기 분석 결과를 바탕으로 RPG 캐릭터의 7가지 스탯을 생성해주세요.
+사용자가 GPT로부터 받은 다음 자기 분석 결과를 바탕으로 RPG 캐릭터의 7가지 스탯과 성격 요약을 생성해주세요.
 각 스탯은 1-99 사이의 값으로, 총합이 200-350 사이가 되도록 해주세요.
 
 GPT 분석 결과:
 ${gptResponse}
 
-다음 7가지 스탯을 JSON 형식으로 분석해주세요:
-- intelligence: 지능 (논리적 사고, 문제 해결 능력)
-- creativity: 창의성 (새로운 아이디어, 예술적 감각)
-- social: 사회성 (소통 능력, 대인 관계)
-- physical: 체력 (신체 활동, 운동 능력)
-- emotional: 감성 (감정 인식, 공감 능력)
-- focus: 집중력 (주의력, 지속력)
-- adaptability: 적응력 (변화 수용, 유연성)
+다음 형식으로 JSON을 생성해주세요:
+{
+  "intelligence": 숫자값,
+  "creativity": 숫자값,
+  "social": 숫자값,
+  "physical": 숫자값,
+  "emotional": 숫자값,
+  "focus": 숫자값,
+  "adaptability": 숫자값,
+  "summary": "GPT 분석을 바탕으로 파악한 사용자의 성격과 특성을 2-3문장으로 요약"
+}
 
 JSON만 출력하고 다른 설명은 없이 응답해주세요.
 `;
