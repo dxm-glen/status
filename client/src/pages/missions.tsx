@@ -199,6 +199,34 @@ export default function Missions() {
     return icons[stat as keyof typeof icons] || "📊";
   };
 
+  const getStatDisplayName = (stat: string) => {
+    const names = {
+      intelligence: "지능",
+      creativity: "창의성",
+      social: "사회성",
+      physical: "체력",
+      emotional: "감성",
+      focus: "집중력",
+      adaptability: "적응력"
+    };
+    return names[stat as keyof typeof names] || stat;
+  };
+
+  const handleStatToggle = (stat: string) => {
+    const currentStats = newMission.targetStats;
+    if (currentStats.includes(stat)) {
+      setNewMission(prev => ({
+        ...prev,
+        targetStats: currentStats.filter(s => s !== stat)
+      }));
+    } else if (currentStats.length < 3) {
+      setNewMission(prev => ({
+        ...prev,
+        targetStats: [...currentStats, stat]
+      }));
+    }
+  };
+
   const handleCompleteMission = (mission: Mission) => {
     setCompletingMissionId(mission.id);
   };
@@ -342,30 +370,42 @@ export default function Missions() {
                   </div>
                 </div>
                 <div>
-                  <Label>목표 스탯</Label>
-                  <Select
-                    value={newMission.targetStat}
-                    onValueChange={(value) => setNewMission(prev => ({ ...prev, targetStat: value }))}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="intelligence">🧠 지능</SelectItem>
-                      <SelectItem value="creativity">🎨 창의성</SelectItem>
-                      <SelectItem value="social">👥 사회성</SelectItem>
-                      <SelectItem value="physical">💪 체력</SelectItem>
-                      <SelectItem value="emotional">❤️ 감성</SelectItem>
-                      <SelectItem value="focus">🎯 집중력</SelectItem>
-                      <SelectItem value="adaptability">🔄 적응력</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Label>목표 스탯 (1-3개 선택)</Label>
+                  <div className="grid grid-cols-2 gap-3 mt-2">
+                    {[
+                      { id: 'intelligence', icon: '🧠', name: '지능' },
+                      { id: 'creativity', icon: '🎨', name: '창의성' },
+                      { id: 'social', icon: '👥', name: '사회성' },
+                      { id: 'physical', icon: '💪', name: '체력' },
+                      { id: 'emotional', icon: '❤️', name: '감성' },
+                      { id: 'focus', icon: '🎯', name: '집중력' },
+                      { id: 'adaptability', icon: '🔄', name: '적응력' }
+                    ].map((stat) => (
+                      <div key={stat.id} className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          id={stat.id}
+                          checked={newMission.targetStats.includes(stat.id)}
+                          onChange={() => handleStatToggle(stat.id)}
+                          disabled={!newMission.targetStats.includes(stat.id) && newMission.targetStats.length >= 3}
+                          className="rounded border-gray-300"
+                        />
+                        <label htmlFor={stat.id} className="text-sm font-medium flex items-center space-x-1 cursor-pointer">
+                          <span>{stat.icon}</span>
+                          <span>{stat.name}</span>
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                  {newMission.targetStats.length === 0 && (
+                    <p className="text-xs text-red-500 mt-1">최소 1개의 스탯을 선택해주세요</p>
+                  )}
                 </div>
               </div>
               <DialogFooter>
                 <Button
                   onClick={() => addMissionMutation.mutate(newMission)}
-                  disabled={addMissionMutation.isPending || !newMission.title || !newMission.description}
+                  disabled={addMissionMutation.isPending || !newMission.title || !newMission.description || newMission.targetStats.length === 0}
                   className="btn-primary"
                 >
                   {addMissionMutation.isPending ? "추가 중..." : "미션 추가"}
@@ -385,7 +425,11 @@ export default function Missions() {
                   <CardContent className="p-6">
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-center space-x-3">
-                        <span className="text-2xl">{getStatIcon(mission.targetStat)}</span>
+                        <div className="flex space-x-1">
+                          {mission.targetStats.map((stat, index) => (
+                            <span key={index} className="text-xl">{getStatIcon(stat)}</span>
+                          ))}
+                        </div>
                         <div>
                           <h3 className="font-semibold text-foreground">{mission.title}</h3>
                           <div className="flex items-center space-x-2 mt-1">
@@ -453,7 +497,11 @@ export default function Missions() {
                   <CardContent className="p-6">
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-center space-x-3">
-                        <span className="text-2xl grayscale">{getStatIcon(mission.targetStat)}</span>
+                        <div className="flex space-x-1">
+                          {mission.targetStats.map((stat, index) => (
+                            <span key={index} className="text-xl grayscale">{getStatIcon(stat)}</span>
+                          ))}
+                        </div>
                         <div>
                           <h3 className="font-semibold text-foreground line-through">{mission.title}</h3>
                           <div className="flex items-center space-x-2 mt-1">
