@@ -395,10 +395,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Update user stats
       const currentStats = await storage.getUserStats(userId);
+      let statIncreases: any = {};
+      
       if (currentStats) {
         const targetStats = Array.isArray(mission.targetStats) ? mission.targetStats : [mission.targetStats];
         const updates: any = {};
-        const statIncreases: any = {};
         
         // Apply increase to each target stat
         targetStats.forEach((stat: string) => {
