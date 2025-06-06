@@ -1,0 +1,253 @@
+# 🎯 미니멀 테크 웹앱 디자인 AI 프롬프트
+
+## 🎨 핵심 색상 팔레트
+
+```
+Primary Colors:
+- Background: #f8fafc (연한 회색 배경)
+- Surface: #ffffff (카드/컴포넌트 배경)
+- Secondary: #64748b (보조 텍스트, 아이콘)
+- Primary Blue: #3b82f6 (주요 액션, 링크)
+- Accent Pink: #ff0080 (강조, CTA 버튼)
+- Text: #1a1a1a (본문 텍스트)
+```
+
+## 📱 기본 웹앱 디자인 프롬프트
+
+```
+Create a minimal tech web application design with the following specifications:
+
+**Color Scheme:**
+- Background: Light gray (#f8fafc) for main layout
+- Cards/Components: Pure white (#ffffff) with subtle borders
+- Primary actions: Blue (#3b82f6) for buttons and links
+- Accent elements: Hot pink (#ff0080) for CTAs and highlights
+- Text: Dark gray (#1a1a1a) for primary content
+- Secondary text: Medium gray (#64748b) for labels and descriptions
+
+**Design Style:**
+- Clean, minimal interface with generous white space
+- Modern typography (SF Pro, Inter, or system fonts)
+- Rounded corners (8-12px) for cards and buttons
+- Subtle shadows for depth (avoid heavy drop shadows)
+- Grid-based layout with consistent spacing
+- No gradients or complex effects - keep it flat and clean
+
+**UI Components:**
+- Cards: White background with light border (#e2e8f0)
+- Buttons: Solid colors with rounded corners, no outlines
+- Input fields: Clean borders with focus states in primary blue
+- Navigation: Minimal with clear hierarchy
+- Icons: Simple, geometric style (Lucide, Heroicons)
+```
+
+## 🖥️ 상세 웹앱 프롬프트
+
+```
+Design a modern minimal tech web application interface:
+
+**LAYOUT STRUCTURE:**
+- Header: White background with subtle bottom border
+- Sidebar: Light gray background (#f8fafc) with white nav items
+- Main content: White cards on light gray background
+- Footer: Minimal with secondary text color
+
+**NAVIGATION:**
+- Clean horizontal nav bar with blue active states
+- Breadcrumbs in secondary gray (#64748b)
+- Tab navigation with pink accent for active tabs
+- Mobile: Hamburger menu with smooth transitions
+
+**TYPOGRAPHY:**
+- Headings: Dark (#1a1a1a), weights 600-700
+- Body text: Dark gray (#1a1a1a), weight 400-500
+- Secondary text: Medium gray (#64748b), weight 400
+- Labels: Small, uppercase, secondary gray
+- Font sizes: 14-16px body, 20-32px headings
+
+**INTERACTIVE ELEMENTS:**
+- Primary buttons: Blue (#3b82f6) with white text
+- Secondary buttons: White with gray border and blue text
+- CTA buttons: Hot pink (#ff0080) with white text
+- Links: Blue (#3b82f6) with subtle hover effects
+- Form inputs: White with light gray borders, blue focus states
+
+**CARDS & CONTAINERS:**
+- Background: White (#ffffff)
+- Border: Light gray (#e2e8f0), 1px solid
+- Border radius: 12px for cards, 8px for smaller elements
+- Padding: 20-24px for cards, 12-16px for smaller components
+- Shadow: Subtle, 0 1px 3px rgba(0,0,0,0.1)
+
+**DATA VISUALIZATION:**
+- Charts: Use primary blue and accent pink
+- Progress bars: Blue fill on light gray background
+- Status indicators: Green for success, pink for alerts, blue for info
+- Tables: Alternating white/light gray rows, blue headers
+```
+
+## 🏢 비즈니스 대시보드 프롬프트
+
+```
+Create a business dashboard web app with minimal tech aesthetic:
+
+**DASHBOARD LAYOUT:**
+- Sidebar navigation with icons and labels
+- Top bar with user profile and notifications
+- Grid of metric cards with white backgrounds
+- Charts and graphs using blue/pink color scheme
+- Action buttons in prominent pink for important actions
+
+**METRIC CARDS:**
+- White background with subtle border
+- Large numbers in dark text (#1a1a1a)
+- Labels in secondary gray (#64748b)
+- Small trend indicators in blue or pink
+- Hover effects with slight shadow increase
+
+**CHARTS & GRAPHS:**
+- Primary data in blue (#3b82f6)
+- Secondary data in pink (#ff0080)
+- Grid lines in light gray (#e2e8f0)
+- Labels and axes in secondary gray (#64748b)
+- Clean, minimal styling without excessive decoration
+
+**DATA TABLES:**
+- Header: Light gray background with dark text
+- Rows: Alternating white and very light gray
+- Borders: Minimal, light gray (#e2e8f0)
+- Action buttons: Small, blue or pink as appropriate
+- Pagination: Simple numbered buttons in primary blue
+```
+
+## 🛒 E-commerce 웹앱 프롬프트
+
+```
+Design an e-commerce web application with minimal tech design:
+
+**PRODUCT CARDS:**
+- Clean white backgrounds with subtle shadows
+- Product images with rounded corners
+- Price in dark text, original price in secondary gray
+- Add to cart buttons in hot pink (#ff0080)
+- Wishlist icons in blue (#3b82f6)
+
+**SHOPPING CART:**
+- Slide-out panel with white background
+- Item list with small product images
+- Quantity selectors with blue buttons
+- Total pricing prominently displayed
+- Checkout button in bright pink
+
+**CHECKOUT FLOW:**
+- Step indicator in blue with gray inactive steps
+- Form fields with clean styling and blue focus states
+- Payment cards with subtle borders and hover effects
+- Security badges in secondary gray
+- Final purchase button in prominent pink
+
+**FILTERS & SEARCH:**
+- Sidebar filters with checkboxes and sliders
+- Search bar with blue focus state
+- Filter tags with light backgrounds and blue text
+- Sort dropdown with clean styling
+- Results count in secondary gray text
+```
+
+## 💼 SaaS 플랫폼 프롬프트
+
+```
+Create a SaaS platform interface with minimal tech styling:
+
+**ONBOARDING FLOW:**
+- Progress indicators in blue with gray inactive states
+- Form steps with clean white cards
+- Next/Continue buttons in pink for primary actions
+- Skip options in secondary gray
+- Success states with blue checkmarks
+
+**SETTINGS PANELS:**
+- Tabbed navigation with blue active states
+- Toggle switches with blue active states
+- Input fields with proper labels and help text
+- Save buttons in primary blue
+- Danger actions (delete) in muted red, not pink
+
+**BILLING & PLANS:**
+- Plan cards with white backgrounds and blue borders for recommended
+- Pricing in large dark text with smaller gray details
+- Upgrade buttons in prominent pink
+- Usage meters with blue progress bars
+- Invoice table with clean minimal styling
+
+**TEAM MANAGEMENT:**
+- User avatar placeholders in light gray
+- Role badges with colored backgrounds (blue for admin, gray for member)
+- Invite buttons in pink
+- Permission checkboxes with blue checked states
+- Action dropdowns with clean menu styling
+```
+
+## 💡 핵심 키워드 모음
+
+**스타일 키워드:**
+```
+minimal tech design, clean interface, modern web app, 
+business dashboard, flat design, geometric elements,
+subtle shadows, rounded corners, grid layout
+```
+
+**색상 키워드:**
+```
+light gray background (#f8fafc), white surfaces (#ffffff),
+primary blue (#3b82f6), accent pink (#ff0080),
+secondary gray (#64748b), dark text (#1a1a1a)
+```
+
+**UI 요소 키워드:**
+```
+clean cards, minimal buttons, subtle borders,
+modern typography, generous spacing, blue focus states,
+pink call-to-action, white navigation, grid system
+```
+
+## 🚫 피해야 할 것들
+
+```
+AVOID:
+- Heavy drop shadows or glowing effects
+- Complex gradients or textures
+- Overly bright or saturated colors
+- Dense layouts with cramped spacing
+- Ornate decorative elements
+- Multiple accent colors (stick to blue + pink)
+- Dark themes (this is specifically for light/minimal)
+- Skeuomorphic design elements
+- Comic Sans or decorative fonts
+- Cluttered interfaces with too many elements
+```
+
+## 📋 완성도 체크리스트
+
+디자인이 미니멀 테크 스타일에 맞는지 확인:
+
+- [ ] 배경이 연한 회색(#f8fafc)인가?
+- [ ] 카드들이 흰색 배경에 미묘한 테두리를 가지는가?
+- [ ] 주요 액션이 파란색(#3b82f6)으로 표시되는가?
+- [ ] CTA 버튼이 핑크색(#ff0080)으로 강조되는가?
+- [ ] 텍스트가 적절한 계층구조를 가지는가?
+- [ ] 여백이 충분하고 깔끔한가?
+- [ ] 모서리가 적절히 둥글게 처리되었는가?
+- [ ] 그림자가 미묘하고 자연스러운가?
+- [ ] 전체적으로 현대적이고 전문적인 느낌인가?
+
+## 🎯 실제 사용 예시
+
+```
+Example prompt for AI:
+"Create a project management web app dashboard using minimal tech design. 
+Use light gray background (#f8fafc) with white project cards. 
+Primary navigation in blue (#3b82f6), create project button in pink (#ff0080). 
+Clean typography with generous spacing, subtle shadows, and rounded corners. 
+Include task cards, progress indicators, and team member avatars."
+```
