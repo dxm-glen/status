@@ -14,7 +14,7 @@ import type {
   InsertStatEvent
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, and } from "drizzle-orm";
+import { eq, and, desc } from "drizzle-orm";
 
 export interface IStorage {
   // User operations
@@ -40,6 +40,10 @@ export interface IStorage {
   // Diary operations
   createDiaryEntry(entry: InsertDiaryEntry): Promise<DiaryEntry>;
   getUserDiaryEntries(userId: number): Promise<DiaryEntry[]>;
+  
+  // Stat events operations
+  createStatEvent(event: InsertStatEvent): Promise<StatEvent>;
+  getRecentStatEvents(userId: number, statName?: string, limit?: number): Promise<StatEvent[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -130,6 +134,28 @@ export class DatabaseStorage implements IStorage {
 
   async getUserDiaryEntries(userId: number): Promise<DiaryEntry[]> {
     return await db.select().from(diaryEntries).where(eq(diaryEntries.userId, userId));
+  }
+
+  async createStatEvent(event: InsertStatEvent): Promise<StatEvent> {
+    const [statEvent] = await db
+      .insert(statEvents)
+      .values(event)
+      .returning();
+    return statEvent;
+  }
+
+  async getRecentStatEvents(userId: number, statName?: string, limit: number = 3): Promise<StatEvent[]> {
+    if (statName) {
+      return await db.select().from(statEvents)
+        .where(and(eq(statEvents.userId, userId), eq(statEvents.statName, statName)))
+        .orderBy(desc(statEvents.createdAt))
+        .limit(limit);
+    }
+    
+    return await db.select().from(statEvents)
+      .where(eq(statEvents.userId, userId))
+      .orderBy(desc(statEvents.createdAt))
+      .limit(limit);
   }
 }
 
