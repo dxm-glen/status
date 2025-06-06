@@ -49,25 +49,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // If questionnaire data exists in session, analyze it with Bedrock and generate stats
       if (req.session.questionnaireData) {
         try {
+          // Create initial analysis record with pending status
+          const pendingAnalysis = await storage.createUserAnalysis({
+            userId: user.id,
+            inputMethod: req.session.questionnaireData.inputMethod,
+            inputData: req.session.questionnaireData.inputData,
+            analysisResult: { status: 'pending' },
+          });
+
           // Analyze user input with Bedrock AI
           generatedStats = await analyzeUserInput(
             req.session.questionnaireData.inputMethod,
             req.session.questionnaireData.inputData
           );
 
-          // Save the analysis to database
+          // Update analysis record with results
           await storage.createUserAnalysis({
             userId: user.id,
             inputMethod: req.session.questionnaireData.inputMethod,
             inputData: req.session.questionnaireData.inputData,
-            analysisResult: generatedStats,
+            analysisResult: { ...generatedStats, status: 'completed' },
           });
 
           // Clear the session data
           delete req.session.questionnaireData;
         } catch (error) {
           console.error("Bedrock analysis failed:", error);
-          // If Bedrock fails, still create user with zero stats
+          // Create failed analysis record
+          await storage.createUserAnalysis({
+            userId: user.id,
+            inputMethod: req.session.questionnaireData.inputMethod,
+            inputData: req.session.questionnaireData.inputData,
+            analysisResult: { status: 'failed', error: error.message },
+          });
+          delete req.session.questionnaireData;
         }
       }
 
@@ -144,10 +159,73 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Stats not found" });
       }
 
-      res.json({ stats });
+      // Get latest analysis status
+      const analyses = await storage.getUserAnalysis(userId);
+      const latestAnalysis = analyses[analyses.length - 1];
+      const analysisStatus = latestAnalysis?.analysisResult?.status || 'none';
+
+      res.json({ 
+        stats, 
+        analysisStatus,
+        hasAnalysisData: analyses.length > 0 
+      });
     } catch (error) {
       console.error("Get user stats error:", error);
       res.status(500).json({ message: "Failed to get user stats" });
+    }
+  });
+
+  // Retry analysis
+  app.post("/api/retry-analysis", async (req, res) => {
+    try {
+      const userId = (req.session as any).userId;
+      if (!userId) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+
+      // Get user's analysis data
+      const analyses = await storage.getUserAnalysis(userId);
+      if (analyses.length === 0) {
+        return res.status(404).json({ message: "No analysis data found" });
+      }
+
+      const latestAnalysis = analyses[analyses.length - 1];
+      
+      try {
+        // Retry Bedrock analysis
+        const generatedStats = await analyzeUserInput(
+          latestAnalysis.inputMethod,
+          latestAnalysis.inputData
+        );
+
+        // Update analysis record with results
+        await storage.createUserAnalysis({
+          userId,
+          inputMethod: latestAnalysis.inputMethod,
+          inputData: latestAnalysis.inputData,
+          analysisResult: { ...generatedStats, status: 'completed' },
+        });
+
+        // Update user stats
+        await storage.updateUserStats(userId, generatedStats);
+
+        res.json({ 
+          message: "Analysis completed successfully",
+          stats: generatedStats
+        });
+      } catch (error) {
+        console.error("Retry analysis failed:", error);
+        await storage.createUserAnalysis({
+          userId,
+          inputMethod: latestAnalysis.inputMethod,
+          inputData: latestAnalysis.inputData,
+          analysisResult: { status: 'failed', error: error.message },
+        });
+        res.status(500).json({ message: "Analysis failed again: " + error.message });
+      }
+    } catch (error) {
+      console.error("Retry analysis error:", error);
+      res.status(500).json({ message: "Failed to retry analysis" });
     }
   });
 

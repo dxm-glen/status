@@ -1,20 +1,49 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
 
 export default function Dashboard() {
   const [, navigate] = useLocation();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
   
   const { data: user, isLoading: userLoading } = useQuery({
     queryKey: ["/api/user"],
     retry: false,
   });
 
-  const { data: statsData, isLoading: statsLoading } = useQuery({
+  const { data: statsData, isLoading: statsLoading, refetch: refetchStats } = useQuery({
     queryKey: ["/api/user/stats"],
     enabled: !!user?.user,
     retry: false,
+    refetchInterval: (data) => {
+      // Auto-refresh every 3 seconds if analysis is pending
+      return data?.analysisStatus === 'pending' ? 3000 : false;
+    }
+  });
+
+  const retryMutation = useMutation({
+    mutationFn: async () => {
+      const response = await apiRequest("POST", "/api/retry-analysis", {});
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/user/stats"] });
+      toast({
+        title: "분석 완료",
+        description: "AI 분석이 성공적으로 완료되었습니다!",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "분석 실패",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
   });
 
   // If not logged in, redirect to home
@@ -46,7 +75,9 @@ export default function Dashboard() {
     focus: 0,
     adaptability: 0,
   };
-
+  
+  const analysisStatus = statsData?.analysisStatus || 'none';
+  const hasAnalysisData = statsData?.hasAnalysisData || false;
   const progressPercentage = Math.min(100, (stats.totalPoints / 1000) * 100);
 
   return (
