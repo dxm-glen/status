@@ -1,4 +1,4 @@
-import { users, userStats, userAnalysis, missions, diaryEntries } from "@shared/schema";
+import { users, userStats, userAnalysis, missions, diaryEntries, statEvents } from "@shared/schema";
 import type { 
   User, 
   InsertUser, 
@@ -9,7 +9,9 @@ import type {
   Mission,
   InsertMission,
   DiaryEntry,
-  InsertDiaryEntry
+  InsertDiaryEntry,
+  StatEvent,
+  InsertStatEvent
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and } from "drizzle-orm";

@@ -60,6 +60,17 @@ export const diaryEntries = pgTable("diary_entries", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+export const statEvents = pgTable("stat_events", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  statName: text("stat_name").notNull(), // intelligence, creativity, etc.
+  eventType: text("event_type").notNull(), // 'mission_complete', 'diary_analysis', 'manual'
+  eventDescription: text("event_description").notNull(), // description of what caused the change
+  statChange: integer("stat_change").notNull(), // +/- amount
+  sourceId: integer("source_id"), // ID of mission, diary entry, etc. that caused this
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 // Relations
 export const usersRelations = relations(users, ({ one, many }) => ({
   stats: one(userStats, {
@@ -69,6 +80,7 @@ export const usersRelations = relations(users, ({ one, many }) => ({
   analysis: many(userAnalysis),
   missions: many(missions),
   diaryEntries: many(diaryEntries),
+  statEvents: many(statEvents),
 }));
 
 export const userStatsRelations = relations(userStats, ({ one }) => ({
@@ -95,6 +107,13 @@ export const missionsRelations = relations(missions, ({ one }) => ({
 export const diaryEntriesRelations = relations(diaryEntries, ({ one }) => ({
   user: one(users, {
     fields: [diaryEntries.userId],
+    references: [users.id],
+  }),
+}));
+
+export const statEventsRelations = relations(statEvents, ({ one }) => ({
+  user: one(users, {
+    fields: [statEvents.userId],
     references: [users.id],
   }),
 }));
@@ -126,6 +145,11 @@ export const insertDiaryEntrySchema = createInsertSchema(diaryEntries).omit({
   createdAt: true,
 });
 
+export const insertStatEventSchema = createInsertSchema(statEvents).omit({
+  id: true,
+  createdAt: true,
+});
+
 // Type exports
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -137,3 +161,5 @@ export type Mission = typeof missions.$inferSelect;
 export type InsertMission = z.infer<typeof insertMissionSchema>;
 export type DiaryEntry = typeof diaryEntries.$inferSelect;
 export type InsertDiaryEntry = z.infer<typeof insertDiaryEntrySchema>;
+export type StatEvent = typeof statEvents.$inferSelect;
+export type InsertStatEvent = z.infer<typeof insertStatEventSchema>;
