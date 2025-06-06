@@ -95,8 +95,8 @@ export class DatabaseStorage implements IStorage {
         const totalPoints = newStats.intelligence + newStats.creativity + newStats.social + 
                            newStats.physical + newStats.emotional + newStats.focus + newStats.adaptability;
         
-        // Calculate level based on total stats (100 stats per level)
-        const calculatedLevel = Math.floor(totalPoints / 100) || 1;
+        // Calculate level based on total stats (레벨 1: 0-99, 레벨 2: 100-199, 레벨 3: 200-299, 등)
+        const calculatedLevel = Math.floor(totalPoints / 100) + 1;
         
         updates.totalPoints = totalPoints;
         updates.level = calculatedLevel;
