@@ -101,30 +101,42 @@ export default function Dashboard() {
             </div>
 
             {/* AI Analysis Status */}
-            <div className="bg-card/30 border border-primary p-6 mb-8 text-center">
-              <h3 className="text-primary font-bold mb-2 uppercase">
-                {stats.totalPoints > 0 ? "AI 분석 완료!" : "Phase 2 진행 중"}
+            <div className="clean-card p-6 mb-8 text-center">
+              <h3 className="text-foreground font-semibold mb-3 text-lg">
+                {stats.totalPoints > 0 ? "AI 분석 완료!" : "AI 분석 진행 중"}
               </h3>
-              <p className="text-foreground text-sm mb-4">
-                {stats.totalPoints > 0 
-                  ? "AWS Bedrock AI가 당신의 입력을 분석하여 개인화된 스탯을 생성했습니다."
-                  : "계정이 생성되었습니다. AI 분석을 통해 스탯을 생성하는 중입니다."
-                }
-              </p>
-              <div className="text-accent text-xs">
-                {stats.totalPoints > 0 ? (
-                  <>
-                    &gt; 분석 완료: Bedrock Claude 3 Sonnet<br />
-                    &gt; 총 성장 점수: {stats.totalPoints}점<br />
-                    &gt; 다음 단계: 미션 시스템 개발 예정
-                  </>
-                ) : (
-                  <>
-                    &gt; 현재 상태: 분석 대기 중<br />
-                    &gt; 다음 단계: Bedrock AI 분석 및 스탯 생성
-                  </>
-                )}
-              </div>
+              
+              {stats.totalPoints > 0 ? (
+                <div className="space-y-4">
+                  <p className="text-muted-foreground text-sm">
+                    AI가 당신을 분석해서 스탯을 분배했습니다
+                  </p>
+                  
+                  {/* AI Analysis Summary */}
+                  {statsData?.analysisSummary && (
+                    <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
+                      <div className="text-primary font-medium text-sm mb-2">당신에 대한 AI 분석</div>
+                      <p className="text-foreground text-sm leading-relaxed">
+                        {statsData.analysisSummary}
+                      </p>
+                    </div>
+                  )}
+                  
+                  <div className="text-secondary text-sm">
+                    총 성장 점수: {stats.totalPoints}점
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <p className="text-muted-foreground text-sm">
+                    계정이 생성되었습니다. AI 분석을 통해 스탯을 생성하는 중입니다.
+                  </p>
+                  <div className="flex items-center justify-center space-x-2">
+                    <div className="animate-pulse-soft h-3 w-3 bg-primary rounded-full"></div>
+                    <span className="text-secondary text-sm">AI 분석 중...</span>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Stats Display */}
