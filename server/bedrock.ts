@@ -212,15 +212,36 @@ JSON만 출력하고 다른 설명은 없이 응답해주세요.
 }
 
 // 미션 생성을 위한 함수
-export async function generateMissions(userId: number, userStats: UserStats, count: number = 4, userProfile?: { currentSelf?: string; desiredSelf?: string }): Promise<any[]> {
+export async function generateMissions(userId: number, userStats: UserStats, count: number = 4, userProfile?: { 
+  gender?: string; 
+  ageGroup?: string; 
+  affiliation?: string; 
+  interests?: string; 
+  additionalInfo?: string; 
+  desiredSelf?: string 
+}): Promise<any[]> {
   let profileContext = "";
-  if (userProfile?.currentSelf || userProfile?.desiredSelf) {
-    profileContext = `
+  if (userProfile) {
+    const profileParts = [];
+    
+    if (userProfile.gender) profileParts.push(`성별: ${userProfile.gender}`);
+    if (userProfile.ageGroup) profileParts.push(`연령대: ${userProfile.ageGroup}`);
+    if (userProfile.affiliation) profileParts.push(`소속: ${userProfile.affiliation}`);
+    if (userProfile.interests) profileParts.push(`관심 영역: ${userProfile.interests}`);
+    if (userProfile.additionalInfo) profileParts.push(`추가 정보: ${userProfile.additionalInfo}`);
+    if (userProfile.desiredSelf) profileParts.push(`원하는 모습: ${userProfile.desiredSelf}`);
+    
+    if (profileParts.length > 0) {
+      profileContext = `
 사용자 프로필 정보:
-${userProfile.currentSelf ? `현재 모습: ${userProfile.currentSelf}` : ""}
-${userProfile.desiredSelf ? `원하는 모습: ${userProfile.desiredSelf}` : ""}
+${profileParts.join('\n')}
 
-이 정보를 바탕으로 사용자의 현재 상황과 목표에 맞는 맞춤형 미션을 생성해주세요.`;
+이 프로필 정보를 바탕으로 사용자의 개인적 상황, 관심사, 목표에 맞는 구체적이고 개인화된 미션을 생성해주세요. 
+- 연령대와 소속을 고려한 현실적인 미션
+- 관심 영역과 연관된 활동 포함
+- 추가 정보의 성격이나 상황을 반영
+- 원하는 모습을 향한 단계적 성장 지원`;
+    }
   }
 
   const prompt = `사용자의 현재 스탯을 분석하여 개인 성장을 위한 일일 미션을 생성해주세요.
