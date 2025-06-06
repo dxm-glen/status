@@ -196,16 +196,16 @@ export default function Profile() {
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h3 className="font-semibold text-lg mb-2">🎯 개인화된 미션 생성</h3>
+                      <h3 className="font-semibold text-lg mb-2">🎯 개인화된 퀘스트 생성</h3>
                       <p className="text-muted-foreground text-sm">
-                        작성하신 프로필을 바탕으로 AI가 맞춤형 성장 미션을 제안합니다.
+                        작성하신 프로필을 바탕으로 AI가 맞춤형 성장 퀘스트를 제안합니다.
                       </p>
                     </div>
                     <Button 
                       onClick={() => navigate("/quests")}
                       className="flex items-center gap-2 bg-primary hover:bg-primary/90"
                     >
-                      미션 확인하기
+                      퀘스트 확인하기
                       <ArrowRight className="h-4 w-4" />
                     </Button>
                   </div>

@@ -148,7 +148,7 @@ export default function Dashboard() {
             <div className="flex flex-col sm:flex-row gap-3 justify-center mb-8">
               <Button 
                 className="btn-primary px-6 py-2"
-                onClick={() => navigate("/missions")}
+                onClick={() => navigate("/quests")}
               >🎯 퀘스트 목록보기</Button>
               <Button 
                 variant="outline"
