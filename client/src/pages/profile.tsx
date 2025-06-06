@@ -95,20 +95,20 @@ export default function Profile() {
     <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
           <div className="mb-8">
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent mb-2">
+            <h1 className="text-3xl font-bold text-primary mb-2">
               프로필 설정
             </h1>
-            <p className="text-gray-400">
+            <p className="text-muted-foreground">
               현재 모습과 원하는 모습을 입력하면, AI가 더 개인화된 미션을 제안합니다.
             </p>
           </div>
 
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <Card className="bg-black/40 border-cyan-500/20">
+              <Card>
                 <CardHeader>
-                  <CardTitle className="text-cyan-400">현재 모습</CardTitle>
-                  <CardDescription className="text-gray-400">
+                  <CardTitle>현재 모습</CardTitle>
+                  <CardDescription>
                     지금의 나는 어떤 사람인가요? 성격, 습관, 현재 상황 등을 자유롭게 작성해주세요.
                   </CardDescription>
                 </CardHeader>
@@ -121,11 +121,11 @@ export default function Profile() {
                         <FormControl>
                           <Textarea
                             placeholder="예: 매일 아침 일찍 일어나려고 하지만 잘 안 되고, 새로운 기술을 배우는 것을 좋아하지만 집중력이 부족한 편입니다. 사람들과 대화하는 것은 좋아하지만 새로운 환경에 적응하는 데 시간이 걸립니다..."
-                            className="min-h-[120px] bg-black/20 border-cyan-500/30 text-white placeholder:text-gray-500 resize-none"
+                            className="min-h-[120px] resize-none"
                             {...field}
                           />
                         </FormControl>
-                        <FormDescription className="text-gray-500">
+                        <FormDescription>
                           최소 10자 이상 작성해주세요. 솔직한 자기 분석이 더 정확한 AI 분석에 도움됩니다.
                         </FormDescription>
                         <FormMessage />
@@ -135,10 +135,10 @@ export default function Profile() {
                 </CardContent>
               </Card>
 
-              <Card className="bg-black/40 border-purple-500/20">
+              <Card>
                 <CardHeader>
-                  <CardTitle className="text-purple-400">원하는 모습</CardTitle>
-                  <CardDescription className="text-gray-400">
+                  <CardTitle>원하는 모습</CardTitle>
+                  <CardDescription>
                     앞으로 어떤 사람이 되고 싶은가요? 목표, 개선하고 싶은 점, 꿈 등을 작성해주세요.
                   </CardDescription>
                 </CardHeader>
