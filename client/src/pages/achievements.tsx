@@ -175,7 +175,11 @@ export default function Achievements() {
                         </div>
                         <div className="flex items-center gap-1">
                           <Target className="h-3 w-3" />
-                          <span>{mission.targetStats.map(stat => statLabels[stat] || stat).join(', ')}</span>
+                          <span>{
+                            (Array.isArray(mission.targetStats[0]) ? mission.targetStats[0] : mission.targetStats)
+                              .map(stat => statLabels[stat] || stat)
+                              .join(', ')
+                          }</span>
                         </div>
                       </div>
                     </CardContent>
