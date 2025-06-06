@@ -175,7 +175,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         analysisStatus,
         analysisSummary,
         statExplanations,
-        hasAnalysisData: analyses.length > 0 
+        hasAnalysisData: analyses.length > 0,
+        lastUpdated: new Date().toISOString() // 캐시 방지용 타임스탬프
       });
     } catch (error) {
       console.error("Get user stats error:", error);

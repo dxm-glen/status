@@ -45,6 +45,8 @@ export default function Dashboard() {
     queryKey: ["/api/user/stats"],
     enabled: !!user?.user,
     retry: false,
+    staleTime: 0, // 데이터를 항상 새로고침
+    gcTime: 0, // React Query v5에서 cacheTime 대신 gcTime 사용
     refetchInterval: (data) => {
       // Auto-refresh every 3 seconds if analysis is pending
       return data?.analysisStatus === 'pending' ? 3000 : false;
@@ -86,12 +88,19 @@ export default function Dashboard() {
       const response = await apiRequest("POST", "/api/user/regenerate-analysis");
       return response.json();
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      // 캐시를 완전히 제거하고 새로 가져오기
+      queryClient.removeQueries({ queryKey: ["/api/user/stats"] });
       queryClient.invalidateQueries({ queryKey: ["/api/user/stats"] });
-      refetchStats(); // 강제로 스탯 데이터를 다시 가져옴
+      
+      // 강제로 페이지 새로고침하여 최신 데이터 확보
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+      
       toast({
         title: "AI 분석 완료!",
-        description: "최신 정보를 바탕으로 새로운 분석이 생성되었습니다.",
+        description: "최신 정보를 바탕으로 새로운 분석이 생성되었습니다. 페이지를 새로고침합니다.",
       });
     },
     onError: (error: any) => {
@@ -226,8 +235,16 @@ export default function Dashboard() {
                           {regenerateAnalysisMutation.isPending ? "분석 중..." : "🔄 재분석"}
                         </Button>
                       </div>
+                      
+                      {/* Debug info - 개발 중에만 표시 */}
+                      {process.env.NODE_ENV === 'development' && (
+                        <div className="text-xs text-gray-500 mb-2">
+                          Debug: {statsData?.lastUpdated} | Summary: {statsData?.analysisSummary ? '있음' : '없음'}
+                        </div>
+                      )}
+                      
                       <p className="text-foreground text-sm leading-relaxed mb-4">
-                        {statsData.analysisSummary}
+                        {statsData?.analysisSummary || "분석 정보를 불러오는 중..."}
                       </p>
                       
                       {/* 각 스탯 설정 이유 - 토글 가능 */}
