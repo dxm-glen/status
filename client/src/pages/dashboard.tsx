@@ -254,27 +254,6 @@ export default function Dashboard() {
                   </div>
                 );
               })}
-              
-              {/* Adaptability - Full width */}
-              <div className="clean-card p-4 cursor-pointer hover:shadow-lg transition-all group col-span-1 md:col-span-2">
-                <div className="flex justify-between items-center mb-3">
-                  <span className="text-foreground font-medium text-sm">
-                    🔄 적응력
-                  </span>
-                  <span className="text-foreground font-semibold text-lg">{stats.adaptability}</span>
-                </div>
-                
-                <div className="progress-container h-2 mb-3">
-                  <div 
-                    className="progress-bar h-full" 
-                    style={{ width: `${stats.adaptability}%` }}
-                  ></div>
-                </div>
-                
-                <div className="text-muted-foreground text-xs leading-relaxed group-hover:text-foreground transition-colors">
-                  변화하는 환경에 대한 유연성, 새로운 상황 적응 능력, 회복탄력성을 나타냅니다.
-                </div>
-              </div>
             </div>
 
             {/* Next Steps */}
