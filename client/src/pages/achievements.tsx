@@ -31,6 +31,16 @@ const difficultyLabels = {
   hard: "어려움"
 };
 
+const statLabels: { [key: string]: string } = {
+  intelligence: "🧠 지능",
+  creativity: "🎨 창의성",
+  social: "👥 사회성",
+  physical: "💪 체력",
+  emotional: "❤️ 감성",
+  focus: "🎯 집중력",
+  adaptability: "🔄 적응력"
+};
+
 export default function Achievements() {
   const { data: missions, isLoading } = useQuery({
     queryKey: ["/api/user/missions/completed"],
@@ -141,7 +151,7 @@ export default function Achievements() {
                         </div>
                         <div className="flex items-center gap-1">
                           <Target className="h-3 w-3" />
-                          <span>{mission.targetStats.join(', ')}</span>
+                          <span>{mission.targetStats.map(stat => statLabels[stat] || stat).join(', ')}</span>
                         </div>
                       </div>
                     </CardContent>
