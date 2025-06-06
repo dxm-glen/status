@@ -114,13 +114,13 @@ export default function Missions() {
     },
     onSuccess: (data) => {
       const statNames = {
-        intelligence: "지능",
-        creativity: "창의성",
-        social: "사회성",
-        physical: "체력",
-        emotional: "감성",
-        focus: "집중력",
-        adaptability: "적응력"
+        intelligence: "🧠 지능",
+        creativity: "🎨 창의성", 
+        social: "👥 사회성",
+        physical: "💪 체력",
+        emotional: "❤️ 감성",
+        focus: "🎯 집중력",
+        adaptability: "🔄 적응력"
       };
       
       const increases = Object.entries(data.statIncrease || {})
