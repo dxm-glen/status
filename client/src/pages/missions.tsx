@@ -326,7 +326,7 @@ export default function Missions() {
                   <CardContent className="p-6">
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-center space-x-3">
-                        <span className="text-2xl">{getStatIcon(mission.targetStat)}</span>
+                        <span className="text-2xl">{getStatIcon(mission.targetStats[0])}</span>
                         <div>
                           <h3 className="font-semibold text-foreground">{mission.title}</h3>
                           <div className="flex items-center space-x-2 mt-1">
@@ -379,7 +379,7 @@ export default function Missions() {
                   <CardContent className="p-6">
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-center space-x-3">
-                        <span className="text-2xl grayscale">{getStatIcon(mission.targetStat)}</span>
+                        <span className="text-2xl grayscale">{getStatIcon(mission.targetStats[0])}</span>
                         <div>
                           <h3 className="font-semibold text-foreground line-through">{mission.title}</h3>
                           <div className="flex items-center space-x-2 mt-1">

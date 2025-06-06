@@ -424,7 +424,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ 
         message: "Mission completed successfully",
         mission,
-        statIncrease: statIncreases
+        statIncreases
       });
     } catch (error) {
       console.error("Complete mission error:", error);
