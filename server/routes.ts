@@ -3,6 +3,16 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { analyzeUserInput, generateMissions } from "./bedrock";
 import { setupAuth } from "./auth";
+import { scrypt, randomBytes } from "crypto";
+import { promisify } from "util";
+
+const scryptAsync = promisify(scrypt);
+
+async function hashPassword(password: string) {
+  const salt = randomBytes(16).toString("hex");
+  const buf = (await scryptAsync(password, salt, 64)) as Buffer;
+  return `${buf.toString("hex")}.${salt}`;
+}
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Setup authentication first
@@ -17,7 +27,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Submit questionnaire data
-  app.post("/api/questionnaire", async (req, res) => {
+  app.post("/api/submit-questionnaire", async (req, res) => {
     const { answers, inputMethod } = req.body;
     
     if (!answers || !inputMethod) {
@@ -262,6 +272,77 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Delete mission error:", error);
       res.status(500).json({ message: "Failed to delete mission" });
+    }
+  });
+
+  // Custom registration endpoint for post-questionnaire signup
+  app.post("/api/register-with-analysis", async (req, res) => {
+    try {
+      const { username, nickname, password } = req.body;
+      
+      if (!username || !nickname || !password) {
+        return res.status(400).json({ message: "Missing required fields" });
+      }
+
+      // Check if questionnaire data exists in session
+      if (!req.session.questionnaireData) {
+        return res.status(400).json({ message: "No questionnaire data found. Please complete the questionnaire first." });
+      }
+
+      // Check if username already exists
+      const existingUser = await storage.getUserByUsername(username);
+      if (existingUser) {
+        return res.status(400).json({ message: "Username already exists" });
+      }
+
+      // Create user
+      const hashedPassword = await hashPassword(password);
+      const user = await storage.createUser({
+        username,
+        nickname,
+        password: hashedPassword
+      });
+
+      // Analyze questionnaire data and create stats
+      const analysisResult = await analyzeUserInput(
+        req.session.questionnaireData.inputMethod,
+        req.session.questionnaireData.inputData
+      );
+
+      await storage.createUserStats({
+        userId: user.id,
+        ...analysisResult
+      });
+
+      // Create analysis record
+      await storage.createUserAnalysis({
+        userId: user.id,
+        inputMethod: req.session.questionnaireData.inputMethod,
+        inputData: req.session.questionnaireData.inputData,
+        analysisResult,
+        summary: analysisResult.summary || '',
+        statExplanations: analysisResult.statExplanations || {}
+      });
+
+      // Auto-login the user
+      req.login(user, (err) => {
+        if (err) {
+          console.error("Login error:", err);
+          return res.status(500).json({ message: "Account created but login failed" });
+        }
+        
+        // Clear questionnaire data from session
+        delete req.session.questionnaireData;
+        
+        res.status(201).json({ 
+          message: "Account created and logged in successfully",
+          user: { id: user.id, username: user.username, nickname: user.nickname }
+        });
+      });
+
+    } catch (error) {
+      console.error("Registration with analysis error:", error);
+      res.status(500).json({ message: "Failed to create account" });
     }
   });
 

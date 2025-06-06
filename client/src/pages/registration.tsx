@@ -30,7 +30,7 @@ export default function Registration() {
 
   const registerMutation = useMutation({
     mutationFn: async (data: RegistrationData) => {
-      const response = await apiRequest("POST", "/api/register", data);
+      const response = await apiRequest("POST", "/api/register-with-analysis", data);
       return response.json();
     },
     onSuccess: async (data) => {
