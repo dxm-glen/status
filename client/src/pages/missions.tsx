@@ -30,7 +30,7 @@ interface NewMission {
   description: string;
   difficulty: 'easy' | 'medium' | 'hard';
   estimatedTime: string;
-  targetStat: string;
+  targetStats: string[];
 }
 
 export default function Missions() {
@@ -40,7 +40,7 @@ export default function Missions() {
     description: "",
     difficulty: "easy",
     estimatedTime: "",
-    targetStat: "intelligence"
+    targetStats: ["intelligence"]
   });
   const [completingMissionId, setCompletingMissionId] = useState<number | null>(null);
   
@@ -92,7 +92,7 @@ export default function Missions() {
         description: "",
         difficulty: "easy",
         estimatedTime: "",
-        targetStat: "intelligence"
+        targetStats: ["intelligence"]
       });
       queryClient.invalidateQueries({ queryKey: ["/api/user/missions"] });
     },
@@ -285,8 +285,8 @@ export default function Missions() {
                 <div>
                   <Label>목표 스탯</Label>
                   <Select
-                    value={newMission.targetStat}
-                    onValueChange={(value) => setNewMission(prev => ({ ...prev, targetStat: value }))}
+                    value={newMission.targetStats[0]}
+                    onValueChange={(value) => setNewMission(prev => ({ ...prev, targetStats: [value] }))}
                   >
                     <SelectTrigger>
                       <SelectValue />
