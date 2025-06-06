@@ -113,10 +113,11 @@ export default function Registration() {
           <CardContent className="p-8">
 {registerMutation.isPending ? (
               // AI 분석 처리 중 화면
-              (<div className="text-center py-12">
+              <div className="text-center py-12">
                 <h2 className="text-2xl font-bold text-primary mb-8 uppercase">
                   &gt; AI 분석 진행 중
                 </h2>
+                
                 <div className="space-y-6">
                   <div className="bg-primary/5 border border-primary/20 rounded-lg p-6">
                     <div className="flex items-center justify-center space-x-3 mb-4">
@@ -141,11 +142,14 @@ export default function Registration() {
                     &gt; 처리 시간: 약 30-60초
                   </div>
                 </div>
-              </div>)
+              </div>
             ) : (
               // 일반 계정 생성 폼
-              (<>
-                <h2 className="text-2xl font-bold text-primary text-center mb-8 uppercase">> 캐릭터 생성</h2>
+              <>
+                <h2 className="text-2xl font-bold text-primary text-center mb-8 uppercase">
+                  &gt; 계정 생성
+                </h2>
+                
                 {method && (
                   <div className="bg-background/50 p-4 mb-6 border border-accent/30 text-center">
                     <p className="text-accent text-sm">
@@ -159,6 +163,7 @@ export default function Registration() {
                     </p>
                   </div>
                 )}
+                
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div>
                     <Label className="block text-secondary font-bold mb-2 uppercase text-sm">
@@ -211,7 +216,7 @@ export default function Registration() {
                     계정 생성 및 분석 시작
                   </Button>
                 </form>
-              </>)
+              </>
             )}
           </CardContent>
         </Card>
