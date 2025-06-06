@@ -158,10 +158,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Get latest analysis status and summary
       const analyses = await storage.getUserAnalysis(userId);
-      const latestAnalysis = analyses[analyses.length - 1];
+      const latestAnalysis = analyses.length > 0 ? analyses[analyses.length - 1] : null;
       const analysisStatus = latestAnalysis?.analysisResult?.status || 'none';
       const analysisSummary = latestAnalysis?.summary || null;
       const statExplanations = latestAnalysis?.statExplanations || null;
+
+      console.log('Latest analysis data:', {
+        analysisCount: analyses.length,
+        latestAnalysisId: latestAnalysis?.id,
+        analysisSummary,
+        statExplanations
+      });
 
       res.json({ 
         stats, 

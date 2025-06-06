@@ -88,6 +88,7 @@ export default function Dashboard() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/user/stats"] });
+      refetchStats(); // 강제로 스탯 데이터를 다시 가져옴
       toast({
         title: "AI 분석 완료!",
         description: "최신 정보를 바탕으로 새로운 분석이 생성되었습니다.",
