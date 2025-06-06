@@ -202,7 +202,7 @@ export default function Profile() {
                       </p>
                     </div>
                     <Button 
-                      onClick={() => navigate("/missions")}
+                      onClick={() => navigate("/quests")}
                       className="flex items-center gap-2 bg-primary hover:bg-primary/90"
                     >
                       미션 확인하기
