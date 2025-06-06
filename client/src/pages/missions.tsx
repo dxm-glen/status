@@ -516,7 +516,7 @@ export default function Missions() {
           <div>
             <h2 className="text-xl font-semibold mb-4 text-foreground flex items-center">
               <Trophy className="h-5 w-5 mr-2 text-yellow-500" />
-              레벨 {currentLevel}에서 완료된 퀘스트 ({allCompletedMissions.length})
+              레벨 {currentLevel}에서 완료된 퀘스트 ({currentLevelCompletedMissions.length})
             </h2>
             <div className="grid gap-4">
               {currentLevelCompletedMissions.map((mission) => (
