@@ -192,9 +192,10 @@ export class DatabaseStorage implements IStorage {
     const stats = await this.getUserStats(userId);
     if (!stats) return false;
 
-    // 레벨별 조건 확인
-    const requiredMinStat = stats.level * 50; // 각 레벨 * 50이 최소 스탯
-    const requiredTotalStats = stats.level * 100; // 각 레벨 * 100이 최소 총합
+    // 다음 레벨로 올라가기 위한 조건
+    const nextLevel = stats.level + 1;
+    const requiredMinStat = nextLevel * 50; // 다음 레벨 * 50이 최소 스탯
+    const requiredTotalStats = nextLevel * 100; // 다음 레벨 * 100이 최소 총합
 
     const allStatsAboveMin = 
       stats.intelligence >= requiredMinStat &&

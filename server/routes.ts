@@ -576,8 +576,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const stats = await storage.getUserStats(userId);
       
       if (stats) {
-        const requiredMinStat = stats.level * 50;
-        const requiredTotalStats = stats.level * 100;
+        const nextLevel = stats.level + 1;
+        const requiredMinStat = nextLevel * 50;
+        const requiredTotalStats = nextLevel * 100;
         const currentTotal = stats.intelligence + stats.creativity + stats.social + 
                            stats.physical + stats.emotional + stats.focus + stats.adaptability;
         
@@ -587,7 +588,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
             minStatRequired: requiredMinStat,
             totalStatsRequired: requiredTotalStats,
             currentTotal,
-            currentLevel: stats.level
+            currentLevel: stats.level,
+            nextLevel
           }
         });
       } else {

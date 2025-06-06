@@ -17,9 +17,7 @@ export default function Dashboard() {
   // Level up mutation
   const levelUpMutation = useMutation({
     mutationFn: async () => {
-      return await apiRequest("/api/user/level-up", {
-        method: "POST"
-      });
+      return await apiRequest("/api/user/level-up", "POST");
     },
     onSuccess: () => {
       toast({
@@ -219,14 +217,33 @@ export default function Dashboard() {
               )}
             </div>
 
-            {/* Stats Display */}
+            {/* Level Display */}
             <div className="mb-8">
-              <div className="flex justify-between text-sm mb-2">
-                <span className="text-secondary uppercase">총 성장 점수</span>
-                <span className="text-accent">{stats.totalPoints} / 1000</span>
+              <div className="flex justify-between items-center mb-4">
+                <div>
+                  <div className="text-lg font-semibold text-foreground">레벨 {stats.level}</div>
+                  <div className="text-sm text-muted-foreground">총 성장 점수: {stats.totalPoints}</div>
+                </div>
+                {stats.canLevelUp && (
+                  <Button 
+                    onClick={() => levelUpMutation.mutate()}
+                    disabled={levelUpMutation.isPending}
+                    className="btn-primary flex items-center gap-2"
+                  >
+                    <Star className="h-4 w-4" />
+                    {levelUpMutation.isPending ? "레벨업 중..." : "레벨업!"}
+                  </Button>
+                )}
               </div>
-              <div className="progress-container h-4">
-                <div className="stat-bar h-full" style={{ width: `${progressPercentage}%` }}></div>
+              
+              {/* Level up requirements */}
+              <div className="bg-background/30 border border-secondary p-3 rounded-lg">
+                <div className="text-xs text-muted-foreground mb-2">레벨 {stats.level + 1} 달성 조건:</div>
+                <div className="text-xs space-y-1">
+                  <div>• 모든 스탯 {(stats.level + 1) * 50} 이상</div>
+                  <div>• 총 스탯 합계 {(stats.level + 1) * 100} 이상</div>
+                  <div className="text-accent">현재 총합: {stats.intelligence + stats.creativity + stats.social + stats.physical + stats.emotional + stats.focus + stats.adaptability}</div>
+                </div>
               </div>
             </div>
 
