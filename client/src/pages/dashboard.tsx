@@ -240,7 +240,6 @@ export default function Dashboard() {
               <div className="bg-background/30 border border-secondary p-3 rounded-lg">
                 <div className="text-xs text-muted-foreground mb-2">레벨 {stats.level + 1} 달성 조건:</div>
                 <div className="text-xs space-y-1">
-                  <div>• 모든 스탯 {(stats.level + 1) * 50} 이상</div>
                   <div>• 총 스탯 합계 {(stats.level + 1) * 100} 이상</div>
                   <div className="text-accent">현재 총합: {stats.intelligence + stats.creativity + stats.social + stats.physical + stats.emotional + stats.focus + stats.adaptability}</div>
                 </div>
@@ -258,13 +257,23 @@ export default function Dashboard() {
                 { name: "🎯 집중력", key: "focus", value: stats.focus, color: "secondary", description: "주의력, 집중 지속력, 목표 달성을 위한 몰입 능력을 나타냅니다." },
                 { name: "🔄 적응력", key: "adaptability", value: stats.adaptability, color: "primary", description: "변화에 대한 유연성, 새로운 환경 적응력, 문제 해결 유연성을 나타냅니다." },
               ].map((stat, index) => {
+                // 동적 최대값 계산 (100 → 200 → 300)
+                let maxValue = 100;
+                if (stat.value >= 200) {
+                  maxValue = 300;
+                } else if (stat.value >= 100) {
+                  maxValue = 200;
+                }
+                
+                const percentage = Math.min((stat.value / maxValue) * 100, 100);
+                
                 return (
                   <div key={index} className="clean-card p-4 cursor-pointer hover:shadow-lg transition-all group">
                     <div className="flex justify-between items-center mb-3">
                       <span className="text-foreground font-medium text-sm">
                         {stat.name}
                       </span>
-                      <span className="text-foreground font-semibold text-lg">{stat.value}</span>
+                      <span className="text-foreground font-semibold text-lg">{stat.value}/{maxValue}</span>
                     </div>
                     
                     <div className="text-muted-foreground text-xs leading-relaxed group-hover:text-foreground transition-colors mb-3">
@@ -274,7 +283,7 @@ export default function Dashboard() {
                     <div className="progress-container h-2 mb-3">
                       <div 
                         className="progress-bar h-full" 
-                        style={{ width: `${stat.value}%` }}
+                        style={{ width: `${percentage}%` }}
                       ></div>
                     </div>
 

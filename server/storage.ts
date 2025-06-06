@@ -83,7 +83,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateUserStats(userId: number, updates: Partial<UserStats>): Promise<UserStats> {
-    // Calculate total points if individual stats are updated
+    // Calculate total points and level if individual stats are updated
     if (updates.intelligence !== undefined || updates.creativity !== undefined || 
         updates.social !== undefined || updates.physical !== undefined ||
         updates.emotional !== undefined || updates.focus !== undefined ||
@@ -92,8 +92,14 @@ export class DatabaseStorage implements IStorage {
       const currentStats = await this.getUserStats(userId);
       if (currentStats) {
         const newStats = { ...currentStats, ...updates };
-        updates.totalPoints = newStats.intelligence + newStats.creativity + newStats.social + 
-                            newStats.physical + newStats.emotional + newStats.focus + newStats.adaptability;
+        const totalPoints = newStats.intelligence + newStats.creativity + newStats.social + 
+                           newStats.physical + newStats.emotional + newStats.focus + newStats.adaptability;
+        
+        // Calculate level based on total stats (100 stats per level)
+        const calculatedLevel = Math.floor(totalPoints / 100) || 1;
+        
+        updates.totalPoints = totalPoints;
+        updates.level = calculatedLevel;
       }
     }
 
@@ -192,24 +198,15 @@ export class DatabaseStorage implements IStorage {
     const stats = await this.getUserStats(userId);
     if (!stats) return false;
 
-    // 다음 레벨로 올라가기 위한 조건
-    const nextLevel = stats.level + 1;
-    const requiredMinStat = nextLevel * 50; // 다음 레벨 * 50이 최소 스탯
-    const requiredTotalStats = nextLevel * 100; // 다음 레벨 * 100이 최소 총합
-
-    const allStatsAboveMin = 
-      stats.intelligence >= requiredMinStat &&
-      stats.creativity >= requiredMinStat &&
-      stats.social >= requiredMinStat &&
-      stats.physical >= requiredMinStat &&
-      stats.emotional >= requiredMinStat &&
-      stats.focus >= requiredMinStat &&
-      stats.adaptability >= requiredMinStat;
-
+    // 총 스탯 합계 기반 레벨 시스템
     const totalStatsSum = stats.intelligence + stats.creativity + stats.social + 
                          stats.physical + stats.emotional + stats.focus + stats.adaptability;
+    
+    // 다음 레벨을 위한 필요 스탯 (레벨 * 100)
+    const nextLevel = stats.level + 1;
+    const requiredTotalStats = nextLevel * 100;
 
-    return allStatsAboveMin && totalStatsSum >= requiredTotalStats;
+    return totalStatsSum >= requiredTotalStats;
   }
 
   async levelUpUser(userId: number): Promise<UserStats> {

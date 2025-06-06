@@ -577,7 +577,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       if (stats) {
         const nextLevel = stats.level + 1;
-        const requiredMinStat = nextLevel * 50;
         const requiredTotalStats = nextLevel * 100;
         const currentTotal = stats.intelligence + stats.creativity + stats.social + 
                            stats.physical + stats.emotional + stats.focus + stats.adaptability;
@@ -585,7 +584,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         res.json({ 
           canLevelUp,
           requirements: {
-            minStatRequired: requiredMinStat,
             totalStatsRequired: requiredTotalStats,
             currentTotal,
             currentLevel: stats.level,
