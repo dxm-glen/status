@@ -60,13 +60,7 @@ export default function Profile() {
 
   const saveProfileMutation = useMutation({
     mutationFn: async (data: ProfileFormData) => {
-      return await apiRequest("/api/user/profile", {
-        method: "POST",
-        body: JSON.stringify(data),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      return await apiRequest("POST", "/api/user/profile", data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/user/profile"] });
