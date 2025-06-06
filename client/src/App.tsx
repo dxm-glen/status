@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { CyberpunkLayout } from "@/components/cyberpunk-layout";
 import Home from "@/pages/home";
+import Login from "@/pages/login";
 import Questionnaire from "@/pages/questionnaire";
 import GptAnalysis from "@/pages/gpt-analysis";
 import Registration from "@/pages/registration";
@@ -17,6 +18,7 @@ function Router() {
     <CyberpunkLayout>
       <Switch>
         <Route path="/" component={Home} />
+        <Route path="/login" component={Login} />
         <Route path="/questionnaire" component={Questionnaire} />
         <Route path="/gpt-analysis" component={GptAnalysis} />
         <Route path="/registration" component={Registration} />
