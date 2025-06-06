@@ -83,11 +83,8 @@ export default function Dashboard() {
 
   const regenerateAnalysisMutation = useMutation({
     mutationFn: async () => {
-      const response = await apiRequest("/api/user/regenerate-analysis", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" }
-      });
-      return response;
+      const response = await apiRequest("POST", "/api/user/regenerate-analysis");
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/user/stats"] });

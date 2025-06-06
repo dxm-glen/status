@@ -627,9 +627,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Regenerate AI analysis
-  app.post("/api/user/regenerate-analysis", handleAsyncRoute(async (req, res) => {
-    const userId = requireAuth(req, res);
-    if (!userId) return;
+  app.post("/api/user/regenerate-analysis", async (req, res) => {
+    const userId = req.session.userId;
+    if (!userId) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
 
     try {
       // Get current user data
@@ -639,7 +641,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const currentStats = await storage.getUserStats(userId);
 
       if (!user || !currentStats) {
-        return createErrorResponse(res, 404, "사용자 정보를 찾을 수 없습니다");
+        return res.status(404).json({ message: "사용자 정보를 찾을 수 없습니다" });
       }
 
       // Prepare comprehensive user data for analysis
@@ -688,7 +690,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         statExplanations: analysisResult.statExplanations || null
       });
 
-      createSuccessResponse(res, {
+      res.json({
         message: "AI 분석이 성공적으로 재생성되었습니다",
         analysis: {
           summary: analysisResult.summary,
@@ -698,9 +700,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     } catch (error) {
       console.error("Regenerate analysis error:", error);
-      createErrorResponse(res, 500, "AI 분석 재생성 중 오류가 발생했습니다", error);
+      res.status(500).json({ message: "AI 분석 재생성 중 오류가 발생했습니다" });
     }
-  }));
+  });
 
   // Get user profile
   app.get("/api/user/profile", async (req, res) => {
