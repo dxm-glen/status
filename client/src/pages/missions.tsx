@@ -182,13 +182,6 @@ export default function Missions() {
   const activeMissions = missions.filter(m => !m.isCompleted);
   const completedMissions = missions.filter(m => m.isCompleted);
   
-  // Debug logging
-  if (missions.length > 0) {
-    console.log("First mission targetStats:", missions[0]?.targetStats);
-    console.log("Type of targetStats:", typeof missions[0]?.targetStats);
-    console.log("Is array?", Array.isArray(missions[0]?.targetStats));
-  }
-  
   const maxMissions = 10;
   const currentActiveCount = activeMissions.length;
   const isAtLimit = currentActiveCount >= maxMissions;
@@ -462,7 +455,7 @@ export default function Missions() {
                         {/* Target Stats Display */}
                         <div className="flex flex-wrap gap-2">
                           <span className="text-sm text-muted-foreground">연관 스탯:</span>
-                          {mission.targetStats.map((stat, index) => (
+                          {(Array.isArray(mission.targetStats[0]) ? mission.targetStats[0] : mission.targetStats).map((stat: string, index: number) => (
                             <Badge key={index} variant="outline" className="text-xs bg-primary/10 text-primary border-primary/20">
                               <span className="mr-1">{getStatIcon(stat)}</span>
                               <span>{getStatDisplayName(stat)}</span>
@@ -532,7 +525,7 @@ export default function Missions() {
                         {/* Target Stats Display */}
                         <div className="flex flex-wrap gap-2">
                           <span className="text-sm text-muted-foreground">연관 스탯:</span>
-                          {mission.targetStats.map((stat, index) => (
+                          {(Array.isArray(mission.targetStats[0]) ? mission.targetStats[0] : mission.targetStats).map((stat: string, index: number) => (
                             <Badge key={index} variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200 opacity-75">
                               <span className="mr-1">{getStatIcon(stat)}</span>
                               <span>{getStatDisplayName(stat)}</span>
