@@ -98,9 +98,7 @@ export function CyberpunkLayout({ children }: CyberpunkLayoutProps) {
       {/* Footer */}
       <footer className="border-t border-border bg-card/30 mt-16">
         <div className="container mx-auto px-4 py-8 text-center">
-          <div className="text-muted-foreground text-sm">
-            Status v1.0 - RPG 캐릭터 성장 시스템
-          </div>
+          <div className="text-muted-foreground text-sm">Status v1.0 - 당신읠 위한 현실의 상태창 서비스</div>
           <div className="text-muted-foreground text-xs mt-2">
             AI 기반 개인 성장 플랫폼
           </div>
