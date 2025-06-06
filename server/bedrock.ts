@@ -210,3 +210,78 @@ JSON만 출력하고 다른 설명은 없이 응답해주세요.
     };
   }
 }
+
+// 미션 생성을 위한 함수
+export async function generateMissions(userId: number, userStats: UserStats): Promise<any[]> {
+  const prompt = `사용자의 현재 스탯을 분석하여 개인 성장을 위한 일일 미션을 생성해주세요.
+
+현재 사용자 스탯:
+- 지능: ${userStats.intelligence}/100
+- 창의성: ${userStats.creativity}/100  
+- 사회성: ${userStats.social}/100
+- 체력: ${userStats.physical}/100
+- 감성: ${userStats.emotional}/100
+- 집중력: ${userStats.focus}/100
+- 적응력: ${userStats.adaptability}/100
+
+각 스탯별로 2개씩 총 14개의 미션을 생성해주세요. 미션은 현실적이고 실행 가능해야 하며, 사용자의 현재 스탯 수준에 맞는 적절한 난이도여야 합니다.
+
+다음 형식으로 JSON을 생성해주세요:
+{
+  "missions": [
+    {
+      "title": "미션 제목 (간결하고 명확하게)",
+      "description": "미션에 대한 구체적인 설명과 수행 방법",
+      "difficulty": "easy|medium|hard",
+      "estimatedTime": "예상 소요 시간 (예: 30분, 1시간, 2시간)",
+      "targetStat": "intelligence|creativity|social|physical|emotional|focus|adaptability"
+    }
+  ]
+}
+
+미션 생성 가이드라인:
+1. 각 스탯별로 정확히 2개씩 생성
+2. 사용자의 현재 스탯이 낮으면 기초적인 미션, 높으면 도전적인 미션
+3. 실제로 수행 가능한 구체적인 활동
+4. 난이도는 현재 스탯 수준에 따라 조정 (1-30: easy, 31-70: medium, 71-100: hard)
+5. 예상 시간은 현실적으로 설정
+
+JSON만 출력하고 다른 설명은 없이 응답해주세요.`;
+
+  try {
+    const payload = {
+      modelId: "anthropic.claude-3-sonnet-20240229-v1:0",
+      contentType: "application/json",
+      accept: "application/json",
+      body: JSON.stringify({
+        anthropic_version: "bedrock-2023-05-31",
+        max_tokens: 4000,
+        messages: [
+          {
+            role: "user",
+            content: prompt
+          }
+        ]
+      })
+    };
+
+    const command = new InvokeModelCommand(payload);
+    const response = await bedrockClient.send(command);
+    
+    const responseBody = JSON.parse(new TextDecoder().decode(response.body));
+    const content = responseBody.content[0].text;
+    
+    // JSON 파싱
+    const jsonMatch = content.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      throw new Error("No JSON found in response");
+    }
+    
+    const result = JSON.parse(jsonMatch[0]);
+    return result.missions || [];
+    
+  } catch (error) {
+    console.error("Bedrock mission generation error:", error);
+    throw error; // AI 미션 생성 실패시 에러를 상위로 전달
+  }
+}
