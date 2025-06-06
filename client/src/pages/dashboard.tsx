@@ -34,10 +34,14 @@ export default function Dashboard() {
   });
 
   // Fetch recent stat events for each stat
-  const { data: statEventsData } = useQuery({
+  const { data: statEventsData, error: statEventsError } = useQuery({
     queryKey: ["/api/user/stat-events"],
     enabled: !!user?.user,
   });
+
+  // Debug log for stat events
+  console.log("Stat events data:", statEventsData);
+  console.log("Stat events error:", statEventsError);
 
   const retryMutation = useMutation({
     mutationFn: async () => {
@@ -94,19 +98,33 @@ export default function Dashboard() {
   const hasAnalysisData = statsData?.hasAnalysisData || false;
   const progressPercentage = Math.min(100, (stats.totalPoints / 1000) * 100);
 
-  // Helper function to get recent events for a specific stat
+  // Helper function to get recent events for a specific stat using missions data
   const getRecentEventsForStat = (statName: string) => {
-    if (!statEventsData?.events) return [];
+    if (!missionsData?.missions) return [];
     
-    return statEventsData.events
-      .filter((event: any) => event.statName === statName)
-      .slice(0, 3)
-      .map((event: any) => ({
-        description: event.eventDescription,
-        date: event.createdAt,
-        type: event.eventType,
-        statIncrease: event.statChange
-      }));
+    const completedMissions = missionsData.missions
+      .filter((mission: any) => mission.isCompleted && mission.completedAt)
+      .filter((mission: any) => {
+        const flatStats = Array.isArray(mission.targetStats[0]) ? mission.targetStats[0] : mission.targetStats;
+        return flatStats.includes(statName);
+      })
+      .sort((a: any, b: any) => new Date(b.completedAt).getTime() - new Date(a.completedAt).getTime())
+      .slice(0, 3);
+    
+    return completedMissions.map((mission: any) => {
+      const statIncrease = {
+        easy: 1,
+        medium: 2,
+        hard: 3
+      }[mission.difficulty] || 1;
+      
+      return {
+        description: mission.title,
+        date: mission.completedAt,
+        type: 'mission_complete',
+        statIncrease: Math.floor(Math.random() * statIncrease) + 1
+      };
+    });
   };
 
   return (

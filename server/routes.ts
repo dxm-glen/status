@@ -305,7 +305,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     try {
       const { stat } = req.query;
-      const events = await storage.getRecentStatEvents(userId, stat as string, 50); // Get more events for dashboard
+      // Don't pass stat filter to get all events for dashboard
+      const events = await storage.getRecentStatEvents(userId, undefined, 50); 
+      console.log(`Found ${events.length} stat events for user ${userId}`);
       res.json({ events });
     } catch (error) {
       console.error("Get stat events error:", error);

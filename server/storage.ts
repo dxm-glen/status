@@ -145,17 +145,23 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getRecentStatEvents(userId: number, statName?: string, limit: number = 3): Promise<StatEvent[]> {
+    console.log(`Querying stat events for user ${userId}, stat: ${statName}, limit: ${limit}`);
+    
     if (statName) {
-      return await db.select().from(statEvents)
+      const result = await db.select().from(statEvents)
         .where(and(eq(statEvents.userId, userId), eq(statEvents.statName, statName)))
         .orderBy(desc(statEvents.createdAt))
         .limit(limit);
+      console.log(`Found ${result.length} filtered stat events`);
+      return result;
     }
     
-    return await db.select().from(statEvents)
+    const result = await db.select().from(statEvents)
       .where(eq(statEvents.userId, userId))
       .orderBy(desc(statEvents.createdAt))
       .limit(limit);
+    console.log(`Found ${result.length} total stat events`);
+    return result;
   }
 }
 
