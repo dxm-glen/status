@@ -93,106 +93,104 @@ export default function Profile() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-primary mb-2">
-              프로필 설정
-            </h1>
-            <p className="text-muted-foreground">
-              현재 모습과 원하는 모습을 입력하면, AI가 더 개인화된 미션을 제안합니다.
-            </p>
-          </div>
-
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>현재 모습</CardTitle>
-                  <CardDescription>
-                    지금의 나는 어떤 사람인가요? 성격, 습관, 현재 상황 등을 자유롭게 작성해주세요.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <FormField
-                    control={form.control}
-                    name="currentSelf"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <Textarea
-                            placeholder="예: 매일 아침 일찍 일어나려고 하지만 잘 안 되고, 새로운 기술을 배우는 것을 좋아하지만 집중력이 부족한 편입니다. 사람들과 대화하는 것은 좋아하지만 새로운 환경에 적응하는 데 시간이 걸립니다..."
-                            className="min-h-[120px] resize-none"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormDescription>
-                          최소 10자 이상 작성해주세요. 솔직한 자기 분석이 더 정확한 AI 분석에 도움됩니다.
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>원하는 모습</CardTitle>
-                  <CardDescription>
-                    앞으로 어떤 사람이 되고 싶은가요? 목표, 개선하고 싶은 점, 꿈 등을 작성해주세요.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <FormField
-                    control={form.control}
-                    name="desiredSelf"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <Textarea
-                            placeholder="예: 규칙적인 생활 습관을 가지고, 새로운 기술을 꾸준히 학습하여 전문성을 키우고 싶습니다. 더 적극적으로 소통하고, 변화에 유연하게 대응할 수 있는 사람이 되고 싶습니다..."
-                            className="min-h-[120px] resize-none"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormDescription>
-                          구체적인 목표와 개선하고 싶은 부분을 작성하면 더 맞춤형 미션을 받을 수 있습니다.
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </CardContent>
-              </Card>
-
-              <div className="flex justify-end">
-                <Button
-                  type="submit"
-                  disabled={saveProfileMutation.isPending}
-                >
-                  {saveProfileMutation.isPending ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      저장 중...
-                    </>
-                  ) : (
-                    "프로필 저장"
-                  )}
-                </Button>
-              </div>
-            </form>
-          </Form>
-
-          <div className="mt-8 p-4 bg-muted/50 border rounded-lg">
-            <h3 className="font-semibold mb-2">💡 프로필 작성 팁</h3>
-            <ul className="text-muted-foreground text-sm space-y-1">
-              <li>• 현재 모습: 솔직하게 현재 상황과 성격을 적어주세요</li>
-              <li>• 원하는 모습: 구체적인 목표와 개선하고 싶은 점을 명시해주세요</li>
-              <li>• AI가 이 정보를 바탕으로 개인화된 성장 미션을 제안합니다</li>
-              <li>• 언제든지 수정할 수 있으니 부담 없이 작성해보세요</li>
-            </ul>
-          </div>
+      <div className="max-w-4xl mx-auto">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-primary mb-2">프로필 상세 추가</h1>
+          <p className="text-muted-foreground">
+            현재 모습과 원하는 모습을 입력하면, AI가 더 개인화된 미션을 제안합니다.
+          </p>
         </div>
+
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>현재 모습</CardTitle>
+                <CardDescription>
+                  지금의 나는 어떤 사람인가요? 성격, 습관, 현재 상황 등을 자유롭게 작성해주세요.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <FormField
+                  control={form.control}
+                  name="currentSelf"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Textarea
+                          placeholder="예: 매일 아침 일찍 일어나려고 하지만 잘 안 되고, 새로운 기술을 배우는 것을 좋아하지만 집중력이 부족한 편입니다. 사람들과 대화하는 것은 좋아하지만 새로운 환경에 적응하는 데 시간이 걸립니다..."
+                          className="min-h-[120px] resize-none"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        최소 10자 이상 작성해주세요. 솔직한 자기 분석이 더 정확한 AI 분석에 도움됩니다.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>원하는 모습</CardTitle>
+                <CardDescription>
+                  앞으로 어떤 사람이 되고 싶은가요? 목표, 개선하고 싶은 점, 꿈 등을 작성해주세요.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <FormField
+                  control={form.control}
+                  name="desiredSelf"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Textarea
+                          placeholder="예: 규칙적인 생활 습관을 가지고, 새로운 기술을 꾸준히 학습하여 전문성을 키우고 싶습니다. 더 적극적으로 소통하고, 변화에 유연하게 대응할 수 있는 사람이 되고 싶습니다..."
+                          className="min-h-[120px] resize-none"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        구체적인 목표와 개선하고 싶은 부분을 작성하면 더 맞춤형 미션을 받을 수 있습니다.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </CardContent>
+            </Card>
+
+            <div className="flex justify-end">
+              <Button
+                type="submit"
+                disabled={saveProfileMutation.isPending}
+              >
+                {saveProfileMutation.isPending ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    저장 중...
+                  </>
+                ) : (
+                  "프로필 저장"
+                )}
+              </Button>
+            </div>
+          </form>
+        </Form>
+
+        <div className="mt-8 p-4 bg-muted/50 border rounded-lg">
+          <h3 className="font-semibold mb-2">💡 프로필 작성 팁</h3>
+          <ul className="text-muted-foreground text-sm space-y-1">
+            <li>• 현재 모습: 솔직하게 현재 상황과 성격을 적어주세요</li>
+            <li>• 원하는 모습: 구체적인 목표와 개선하고 싶은 점을 명시해주세요</li>
+            <li>• AI가 이 정보를 바탕으로 개인화된 성장 미션을 제안합니다</li>
+            <li>• 언제든지 수정할 수 있으니 부담 없이 작성해보세요</li>
+          </ul>
+        </div>
+      </div>
     </div>
   );
 }
