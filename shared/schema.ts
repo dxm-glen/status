@@ -73,11 +73,23 @@ export const statEvents = pgTable("stat_events", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+export const userProfiles = pgTable("user_profiles", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }).unique(),
+  currentSelf: text("current_self"), // 현재 모습 설명
+  desiredSelf: text("desired_self"), // 원하는 모습 설명
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 // Relations
 export const usersRelations = relations(users, ({ one, many }) => ({
   stats: one(userStats, {
     fields: [users.id],
     references: [userStats.userId],
+  }),
+  profile: one(userProfiles, {
+    fields: [users.id],
+    references: [userProfiles.userId],
   }),
   analysis: many(userAnalysis),
   missions: many(missions),
@@ -120,6 +132,13 @@ export const statEventsRelations = relations(statEvents, ({ one }) => ({
   }),
 }));
 
+export const userProfilesRelations = relations(userProfiles, ({ one }) => ({
+  user: one(users, {
+    fields: [userProfiles.userId],
+    references: [users.id],
+  }),
+}));
+
 // Zod schemas for validation
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
@@ -152,6 +171,11 @@ export const insertStatEventSchema = createInsertSchema(statEvents).omit({
   createdAt: true,
 });
 
+export const insertUserProfileSchema = createInsertSchema(userProfiles).omit({
+  id: true,
+  updatedAt: true,
+});
+
 // Type exports
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -165,3 +189,5 @@ export type DiaryEntry = typeof diaryEntries.$inferSelect;
 export type InsertDiaryEntry = z.infer<typeof insertDiaryEntrySchema>;
 export type StatEvent = typeof statEvents.$inferSelect;
 export type InsertStatEvent = z.infer<typeof insertStatEventSchema>;
+export type UserProfile = typeof userProfiles.$inferSelect;
+export type InsertUserProfile = z.infer<typeof insertUserProfileSchema>;
