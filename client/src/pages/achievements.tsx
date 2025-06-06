@@ -105,13 +105,19 @@ export default function Achievements() {
       </div>
 
       <Tabs defaultValue={levels[0]?.toString()} className="w-full">
-        <TabsList className="grid grid-cols-auto w-full max-w-md mb-6">
-          {levels.map(level => (
-            <TabsTrigger key={level} value={level.toString()}>
-              레벨 {level}
-            </TabsTrigger>
-          ))}
-        </TabsList>
+        <div className="overflow-x-auto mb-6">
+          <TabsList className="inline-flex h-10 items-center justify-center rounded-md bg-muted p-1 text-muted-foreground min-w-max">
+            {levels.map(level => (
+              <TabsTrigger 
+                key={level} 
+                value={level.toString()}
+                className="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm"
+              >
+                레벨 {level}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </div>
 
         {levels.map(level => (
           <TabsContent key={level} value={level.toString()}>
