@@ -211,6 +211,94 @@ JSON만 출력하고 다른 설명은 없이 응답해주세요.
   }
 }
 
+// 레벨업 시 재분석을 위한 함수
+export async function analyzeUserProgress(userStats: UserStats, completedMissions: any[]): Promise<any> {
+  const analysisPrompt = `
+사용자가 레벨업을 달성했습니다! 현재 스탯과 완료한 미션들을 바탕으로 성장 분석을 해주세요.
+
+현재 사용자 스탯:
+- 지능: ${userStats.intelligence}
+- 창의성: ${userStats.creativity}
+- 사회성: ${userStats.social}
+- 체력: ${userStats.physical}
+- 감성: ${userStats.emotional}
+- 집중력: ${userStats.focus}
+- 적응력: ${userStats.adaptability}
+- 현재 레벨: ${userStats.level}
+- 총 점수: ${userStats.totalPoints}
+
+최근 완료한 미션들:
+${completedMissions.map(mission => 
+  `- ${mission.title} (${mission.difficulty}, 레벨 ${mission.completedAtLevel}에서 완료)`
+).join('\n')}
+
+다음 형식으로 JSON을 생성해주세요:
+{
+  "summary": "사용자의 현재 성장 상태와 특징을 200자 내외로 요약해주세요. 완료한 미션들의 패턴과 강점을 포함하세요.",
+  "statAnalysis": {
+    "strengths": ["가장 뛰어난 능력 2-3개"],
+    "improvements": ["개선이 필요한 영역 1-2개"],
+    "growth": "이전 레벨 대비 가장 눈에 띄는 성장 포인트"
+  },
+  "nextLevelGoals": ["다음 레벨을 위한 구체적인 목표 3개"],
+  "personalityInsights": "완료한 미션 패턴을 통해 보이는 성격적 특징과 선호도 분석"
+}
+
+JSON만 출력하고 다른 설명은 없이 응답해주세요.
+`;
+
+  try {
+    const input = {
+      modelId: "anthropic.claude-3-5-sonnet-20241022-v2:0",
+      contentType: "application/json",
+      accept: "application/json",
+      body: JSON.stringify({
+        anthropic_version: "bedrock-2023-05-31",
+        max_tokens: 1500,
+        messages: [
+          {
+            role: "user",
+            content: analysisPrompt
+          }
+        ]
+      })
+    };
+
+    const command = new InvokeModelCommand(input);
+    const response = await bedrockClient.send(command);
+    
+    const responseBody = JSON.parse(new TextDecoder().decode(response.body));
+    const content = responseBody.content[0].text;
+    
+    // JSON 파싱
+    const jsonMatch = content.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      throw new Error("No JSON found in response");
+    }
+    
+    return JSON.parse(jsonMatch[0]);
+    
+  } catch (error) {
+    console.error("Bedrock progress analysis error:", error);
+    
+    // 개발용 fallback
+    return {
+      summary: `레벨 ${userStats.level} 달성을 축하합니다! 지속적인 미션 완료를 통해 균형잡힌 성장을 보여주고 있습니다. 특히 ${completedMissions.length}개의 미션을 성공적으로 완료하며 다양한 영역에서 발전하고 있습니다.`,
+      statAnalysis: {
+        strengths: ["지속적인 학습 의지", "목표 달성 능력"],
+        improvements: ["새로운 도전 영역 확장"],
+        growth: "미션 완료를 통한 체계적 성장"
+      },
+      nextLevelGoals: [
+        "더 도전적인 미션 수행",
+        "약점 스탯 집중 개선", 
+        "새로운 분야 탐구"
+      ],
+      personalityInsights: "목표 지향적이고 성취욕이 강한 성격으로, 체계적인 접근을 통해 꾸준한 발전을 추구하는 타입입니다."
+    };
+  }
+}
+
 // 미션 생성을 위한 함수
 export async function generateMissions(userId: number, userStats: UserStats, count: number = 4): Promise<any[]> {
   const prompt = `사용자의 현재 스탯을 분석하여 개인 성장을 위한 일일 미션을 생성해주세요.

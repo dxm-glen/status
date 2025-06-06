@@ -166,7 +166,19 @@ export default function Dashboard() {
                   {/* AI Analysis Summary */}
                   {statsData?.analysisSummary && (
                     <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
-                      <div className="text-primary font-medium text-sm mb-3">당신에 대한 AI 분석</div>
+                      <div className="flex justify-between items-start mb-3">
+                        <div className="text-primary font-medium text-sm">당신에 대한 AI 분석</div>
+                        <div className="text-xs text-muted-foreground">
+                          {(() => {
+                            const latestAnalysis = statsData.analysisData?.[0];
+                            if (latestAnalysis?.createdAt) {
+                              const date = new Date(latestAnalysis.createdAt);
+                              return `${date.toLocaleDateString('ko-KR')} 업데이트`;
+                            }
+                            return '';
+                          })()}
+                        </div>
+                      </div>
                       <p className="text-foreground text-sm leading-relaxed mb-4">
                         {statsData.analysisSummary}
                       </p>

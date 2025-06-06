@@ -433,9 +433,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     try {
       const missionId = parseInt(req.params.id);
+      
+      // Get current user stats to record level at completion
+      const currentStats = await storage.getUserStats(userId);
+      if (!currentStats) {
+        return res.status(404).json({ message: "User stats not found" });
+      }
+      
       const mission = await storage.updateMission(missionId, {
         isCompleted: true,
-        completedAt: new Date()
+        completedAt: new Date(),
+        completedAtLevel: currentStats.level
       });
 
       // Calculate stat increase based on difficulty
@@ -446,10 +454,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }[mission.difficulty] || 1;
 
       // Update user stats - support multiple stats
-      const currentStats = await storage.getUserStats(userId);
+      const userStatsForUpdate = await storage.getUserStats(userId);
       const statIncreases: Record<string, number> = {};
       
-      if (currentStats) {
+      if (userStatsForUpdate) {
         const updates: Record<string, number> = {};
         
         // Generate random stat increases for each target stat (1 to statIncrease points based on difficulty)
@@ -457,7 +465,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const flatStats = Array.isArray(mission.targetStats[0]) ? mission.targetStats[0] : mission.targetStats;
         
         for (const stat of flatStats) {
-          const currentValue = currentStats[stat as keyof typeof currentStats] as number;
+          const currentValue = userStatsForUpdate[stat as keyof typeof userStatsForUpdate] as number;
           const randomIncrease = Math.floor(Math.random() * statIncrease) + 1; // 1 to statIncrease points
           updates[stat] = Math.min(99, currentValue + randomIncrease);
           statIncreases[stat] = randomIncrease;
@@ -545,6 +553,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const updatedStats = await storage.levelUpUser(userId);
+      
+      // AI 재분석 수행
+      try {
+        // 현재 레벨에서 완료한 미션들 가져오기
+        const allMissions = await storage.getUserMissions(userId);
+        const completedMissionsAtCurrentLevel = allMissions.filter(
+          mission => mission.isCompleted && mission.completedAtLevel === updatedStats.level - 1
+        );
+        
+        // AI 분석 수행
+        const { analyzeUserProgress } = require('./bedrock');
+        const progressAnalysis = await analyzeUserProgress(updatedStats, completedMissionsAtCurrentLevel);
+        
+        // 분석 결과를 저장
+        await storage.createUserAnalysis({
+          userId,
+          inputMethod: 'level_up_analysis',
+          inputData: {
+            level: updatedStats.level,
+            missions: completedMissionsAtCurrentLevel.map(m => ({
+              title: m.title,
+              difficulty: m.difficulty,
+              completedAtLevel: m.completedAtLevel
+            }))
+          },
+          analysisResult: progressAnalysis,
+          summary: progressAnalysis.summary,
+          statExplanations: progressAnalysis.statAnalysis
+        });
+        
+        console.log("Level up analysis completed for user", userId);
+      } catch (analysisError) {
+        console.error("Level up analysis failed:", analysisError);
+        // 분석 실패해도 레벨업은 성공으로 처리
+      }
+      
       res.json({ 
         message: "레벨업 완료!", 
         stats: updatedStats 
