@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { STAT_NAMES, STAT_DESCRIPTIONS, getStatMaxValue, getStatPercentage } from "@/lib/constants";
 import { Clock, TrendingUp, ChevronDown, ChevronUp, Star } from "lucide-react";
 
 export default function Dashboard() {
@@ -274,24 +275,11 @@ export default function Dashboard() {
 
             {/* 7 Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-              {[
-                { name: "🧠 지능", key: "intelligence", value: stats.intelligence, color: "primary", description: "논리적 사고, 문제 해결 능력, 학습 속도를 나타냅니다." },
-                { name: "🎨 창의성", key: "creativity", value: stats.creativity, color: "accent", description: "독창적 아이디어 창출, 예술적 감각, 혁신적 사고력을 나타냅니다." },
-                { name: "👥 사회성", key: "social", value: stats.social, color: "secondary", description: "대인관계 능력, 소통 스킬, 리더십과 협업 능력을 나타냅니다." },
-                { name: "💪 체력", key: "physical", value: stats.physical, color: "primary", description: "신체적 건강, 지구력, 활동성과 에너지 레벨을 나타냅니다." },
-                { name: "❤️ 감성", key: "emotional", value: stats.emotional, color: "accent", description: "감정 이해력, 공감 능력, 정서적 안정성을 나타냅니다." },
-                { name: "🎯 집중력", key: "focus", value: stats.focus, color: "secondary", description: "주의력, 집중 지속력, 목표 달성을 위한 몰입 능력을 나타냅니다." },
-                { name: "🔄 적응력", key: "adaptability", value: stats.adaptability, color: "primary", description: "변화에 대한 유연성, 새로운 환경 적응력, 문제 해결 유연성을 나타냅니다." },
-              ].map((stat, index) => {
-                // 동적 최대값 계산 (100 → 200 → 300)
-                let maxValue = 100;
-                if (stat.value >= 200) {
-                  maxValue = 300;
-                } else if (stat.value >= 100) {
-                  maxValue = 200;
-                }
-                
-                const percentage = Math.min((stat.value / maxValue) * 100, 100);
+              {Object.entries(STAT_NAMES).map(([key, name]) => {
+                const value = stats[key as keyof typeof stats] as number;
+                const description = STAT_DESCRIPTIONS[key as keyof typeof STAT_DESCRIPTIONS];
+                const maxValue = getStatMaxValue(value);
+                const percentage = getStatPercentage(value, maxValue);
                 
                 return (
                   <div key={index} className="clean-card p-4 cursor-pointer hover:shadow-lg transition-all group">

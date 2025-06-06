@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { formatStatIncreases, DIFFICULTY_COLORS, DIFFICULTY_LABELS, STAT_NAMES } from "@/lib/constants";
 import { CheckCircle, Clock, Plus, Sparkles, Trophy, Trash2 } from "lucide-react";
 
 interface Mission {
@@ -121,27 +122,10 @@ export default function Missions() {
       return response.json();
     },
     onSuccess: (data) => {
-      const statNames = {
-        intelligence: "🧠 지능",
-        creativity: "🎨 창의성", 
-        social: "👥 사회성",
-        physical: "💪 체력",
-        emotional: "❤️ 감성",
-        focus: "🎯 집중력",
-        adaptability: "🔄 적응력"
-      };
-      
       console.log("Mission completion data:", data);
       console.log("Stat increases:", data.statIncrease);
       
-      const increases = Object.entries(data.statIncrease || {})
-        .map(([stat, points]) => {
-          const koreanName = statNames[stat as keyof typeof statNames] || stat;
-          console.log(`Mapping ${stat} to ${koreanName} +${points}`);
-          return `${koreanName} +${points}`;
-        })
-        .join(", ");
-      
+      const increases = formatStatIncreases(data.statIncrease || {});
       console.log("Final increases string:", increases);
       
       toast({
@@ -215,29 +199,11 @@ export default function Missions() {
   };
 
   const getStatIcon = (stat: string) => {
-    const icons = {
-      intelligence: "🧠",
-      creativity: "🎨",
-      social: "👥",
-      physical: "💪",
-      emotional: "❤️",
-      focus: "🎯",
-      adaptability: "🔄"
-    };
-    return icons[stat as keyof typeof icons] || "📊";
+    return STAT_NAMES[stat as keyof typeof STAT_NAMES]?.split(' ')[0] || "📊";
   };
 
   const getStatDisplayName = (stat: string) => {
-    const names = {
-      intelligence: "지능",
-      creativity: "창의성",
-      social: "사회성",
-      physical: "체력",
-      emotional: "감성",
-      focus: "집중력",
-      adaptability: "적응력"
-    };
-    return names[stat as keyof typeof names] || stat;
+    return STAT_NAMES[stat as keyof typeof STAT_NAMES]?.split(' ')[1] || stat;
   };
 
   const handleStatToggle = (stat: string) => {
