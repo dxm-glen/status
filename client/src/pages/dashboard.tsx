@@ -1,16 +1,18 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "wouter";
+import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { Clock, TrendingUp } from "lucide-react";
+import { Clock, TrendingUp, ChevronDown, ChevronUp } from "lucide-react";
 
 export default function Dashboard() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [showAnalysisDetails, setShowAnalysisDetails] = useState(false);
   
   const { data: user, isLoading: userLoading } = useQuery({
     queryKey: ["/api/user"],
@@ -148,17 +150,30 @@ export default function Dashboard() {
                         {statsData.analysisSummary}
                       </p>
                       
-                      {/* 각 스탯 설정 이유 */}
+                      {/* 각 스탯 설정 이유 - 토글 가능 */}
                       {statsData.statExplanations && (
                         <div className="space-y-2">
-                          <div className="text-primary font-medium text-xs mb-2">초기 캐릭터 스탯 설정 근거:</div>
-                          <div className="space-y-1 text-xs">
-                            {Object.entries(statsData.statExplanations).map(([key, explanation]) => (
-                              <div key={key} className="text-muted-foreground leading-relaxed">
-                                • {explanation}
-                              </div>
-                            ))}
-                          </div>
+                          <button
+                            onClick={() => setShowAnalysisDetails(!showAnalysisDetails)}
+                            className="flex items-center gap-2 text-primary font-medium text-xs mb-2 hover:text-primary/80 transition-colors"
+                          >
+                            <span>초기 캐릭터 스탯 설정 근거</span>
+                            {showAnalysisDetails ? (
+                              <ChevronUp className="h-3 w-3" />
+                            ) : (
+                              <ChevronDown className="h-3 w-3" />
+                            )}
+                          </button>
+                          
+                          {showAnalysisDetails && (
+                            <div className="space-y-1 text-xs animate-in slide-in-from-top-2 duration-200">
+                              {Object.entries(statsData.statExplanations).map(([key, explanation]) => (
+                                <div key={key} className="text-muted-foreground leading-relaxed">
+                                  • {explanation}
+                                </div>
+                              ))}
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>
