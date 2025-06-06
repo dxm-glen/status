@@ -27,9 +27,7 @@ export default function Home() {
         <p className="text-lg text-muted-foreground mb-2">
           당신의 성장을 RPG 캐릭터처럼 시각화하세요
         </p>
-        <p className="text-secondary text-sm">
-          AI 분석을 통한 개인 스탯 생성 및 미션 시스템
-        </p>
+        <p className="text-secondary text-sm">AI 분석을 통한 개인 스탯 생성 및 퀘스트 시스템</p>
         
         {/* Modern Icon */}
         <div className="my-12 flex justify-center">
