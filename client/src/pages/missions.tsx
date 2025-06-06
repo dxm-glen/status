@@ -187,12 +187,6 @@ export default function Missions() {
   const profile = profileData?.profile;
   const hasDetailedProfile = profile && profile.desiredSelf && profile.interests;
   
-  // Debug profile data
-  console.log('Profile data:', profile);
-  console.log('Has detailed profile:', hasDetailedProfile);
-  console.log('desiredSelf:', profile?.desiredSelf);
-  console.log('interests:', profile?.interests);
-  
   // Get all completed missions for current level (no limit)
   const allCurrentLevelCompletedMissions = allCompletedMissions
     .filter(m => (m as any).completedAtLevel === currentLevel)
@@ -424,32 +418,33 @@ export default function Missions() {
         </div>
 
         {/* Profile Enhancement Section */}
-        {!hasDetailedProfile && (
-          <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 border-blue-200 dark:border-blue-800">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4">
-                  <div className="bg-blue-100 dark:bg-blue-900 p-3 rounded-full">
-                    <User className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-lg mb-1">🎯 더 개인화된 퀘스트 받기</h3>
-                    <p className="text-muted-foreground text-sm">
-                      프로필에 상세 정보를 추가하면 AI가 더 개인화된 퀘스트를 생성합니다
-                    </p>
-                  </div>
+        <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 border-blue-200 dark:border-blue-800">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <div className="bg-blue-100 dark:bg-blue-900 p-3 rounded-full">
+                  <User className="h-6 w-6 text-blue-600 dark:text-blue-400" />
                 </div>
-                <Button 
-                  onClick={() => navigate("/profile")}
-                  className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white"
-                >
-                  프로필 상세 추가
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
+                <div>
+                  <h3 className="font-semibold text-lg mb-1">🎯 더 개인화된 퀘스트 받기</h3>
+                  <p className="text-muted-foreground text-sm">
+                    {hasDetailedProfile 
+                      ? "프로필을 업데이트하여 더욱 맞춤형 퀘스트를 받아보세요"
+                      : "프로필에 상세 정보를 추가하면 AI가 더 개인화된 퀘스트를 생성합니다"
+                    }
+                  </p>
+                </div>
               </div>
-            </CardContent>
-          </Card>
-        )}
+              <Button 
+                onClick={() => navigate("/profile")}
+                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white"
+              >
+                {hasDetailedProfile ? "프로필 업데이트" : "프로필 상세 추가"}
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Active Missions */}
         {activeMissions.length > 0 && (
