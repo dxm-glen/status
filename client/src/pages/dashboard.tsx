@@ -136,9 +136,31 @@ export default function Dashboard() {
       <div className="max-w-4xl mx-auto">
         <Card className="cyber-card">
           <CardContent className="p-8">
-            <h2 className="text-2xl font-bold text-primary text-center mb-8 uppercase">
+            <h2 className="text-2xl font-bold text-primary text-center mb-6 uppercase">
               &gt; {user.user.nickname}의 캐릭터 상태창
             </h2>
+            
+            {/* Navigation Buttons */}
+            <div className="flex flex-col sm:flex-row gap-3 justify-center mb-8">
+              <Button 
+                className="btn-primary px-6 py-2"
+                onClick={() => navigate("/missions")}
+              >🎯 퀘스트 목록보기</Button>
+              <Button 
+                variant="outline"
+                className="px-6 py-2"
+                onClick={() => navigate("/achievements")}
+              >
+                🏆 업적 보기
+              </Button>
+              <Button 
+                variant="outline"
+                className="px-6 py-2"
+                onClick={() => navigate("/profile")}
+              >
+                👤 프로필 설정
+              </Button>
+            </div>
             
             {/* Character Level Display */}
             <div className="text-center mb-8">
@@ -322,7 +344,7 @@ export default function Dashboard() {
             </div>
 
             {/* Next Steps */}
-            <div className="text-center space-y-4">
+            <div className="text-center">
               <div className="bg-background/30 border border-secondary p-4">
                 <p className="text-secondary text-sm">
                   🎯 성장을 위한 다음 단계:
@@ -332,34 +354,6 @@ export default function Dashboard() {
                   <div>&gt; AI가 생성한 개인화된 미션 수행</div>
                   <div>&gt; 꾸준한 성장으로 레벨업</div>
                 </div>
-              </div>
-              
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button 
-                  className="btn-primary px-8 py-3"
-                  onClick={() => navigate("/missions")}
-                >🎯 퀘스트 목록보기</Button>
-                <Button 
-                  variant="outline"
-                  className="px-8 py-3"
-                  onClick={() => navigate("/achievements")}
-                >
-                  🏆 업적 보기
-                </Button>
-                <Button 
-                  variant="outline"
-                  className="px-8 py-3"
-                  onClick={() => navigate("/profile")}
-                >
-                  👤 프로필 설정
-                </Button>
-                <Button 
-                  variant="outline"
-                  className="px-8 py-3"
-                  onClick={() => navigate("/")}
-                >
-                  홈으로 돌아가기
-                </Button>
               </div>
             </div>
           </CardContent>
