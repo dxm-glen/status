@@ -1,0 +1,129 @@
+import { users, userStats, userAnalysis, missions, diaryEntries } from "@shared/schema";
+import type { 
+  User, 
+  InsertUser, 
+  UserStats, 
+  InsertUserStats,
+  UserAnalysis,
+  InsertUserAnalysis,
+  Mission,
+  InsertMission,
+  DiaryEntry,
+  InsertDiaryEntry
+} from "@shared/schema";
+import { db } from "./db";
+import { eq, and } from "drizzle-orm";
+
+export interface IStorage {
+  // User operations
+  getUser(id: number): Promise<User | undefined>;
+  getUserByUsername(username: string): Promise<User | undefined>;
+  createUser(user: InsertUser): Promise<User>;
+  
+  // User stats operations
+  getUserStats(userId: number): Promise<UserStats | undefined>;
+  createUserStats(stats: InsertUserStats): Promise<UserStats>;
+  updateUserStats(userId: number, stats: Partial<UserStats>): Promise<UserStats>;
+  
+  // User analysis operations
+  createUserAnalysis(analysis: InsertUserAnalysis): Promise<UserAnalysis>;
+  getUserAnalysis(userId: number): Promise<UserAnalysis[]>;
+  
+  // Mission operations
+  createMission(mission: InsertMission): Promise<Mission>;
+  getUserMissions(userId: number): Promise<Mission[]>;
+  updateMission(id: number, updates: Partial<Mission>): Promise<Mission>;
+  
+  // Diary operations
+  createDiaryEntry(entry: InsertDiaryEntry): Promise<DiaryEntry>;
+  getUserDiaryEntries(userId: number): Promise<DiaryEntry[]>;
+}
+
+export class DatabaseStorage implements IStorage {
+  async getUser(id: number): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user || undefined;
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user || undefined;
+  }
+
+  async createUser(insertUser: InsertUser): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values(insertUser)
+      .returning();
+    return user;
+  }
+
+  async getUserStats(userId: number): Promise<UserStats | undefined> {
+    const [stats] = await db.select().from(userStats).where(eq(userStats.userId, userId));
+    return stats || undefined;
+  }
+
+  async createUserStats(stats: InsertUserStats): Promise<UserStats> {
+    const [userStat] = await db
+      .insert(userStats)
+      .values(stats)
+      .returning();
+    return userStat;
+  }
+
+  async updateUserStats(userId: number, updates: Partial<UserStats>): Promise<UserStats> {
+    const [updatedStats] = await db
+      .update(userStats)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(userStats.userId, userId))
+      .returning();
+    return updatedStats;
+  }
+
+  async createUserAnalysis(analysis: InsertUserAnalysis): Promise<UserAnalysis> {
+    const [userAnalysisRecord] = await db
+      .insert(userAnalysis)
+      .values(analysis)
+      .returning();
+    return userAnalysisRecord;
+  }
+
+  async getUserAnalysis(userId: number): Promise<UserAnalysis[]> {
+    return await db.select().from(userAnalysis).where(eq(userAnalysis.userId, userId));
+  }
+
+  async createMission(mission: InsertMission): Promise<Mission> {
+    const [missionRecord] = await db
+      .insert(missions)
+      .values(mission)
+      .returning();
+    return missionRecord;
+  }
+
+  async getUserMissions(userId: number): Promise<Mission[]> {
+    return await db.select().from(missions).where(eq(missions.userId, userId));
+  }
+
+  async updateMission(id: number, updates: Partial<Mission>): Promise<Mission> {
+    const [updatedMission] = await db
+      .update(missions)
+      .set(updates)
+      .where(eq(missions.id, id))
+      .returning();
+    return updatedMission;
+  }
+
+  async createDiaryEntry(entry: InsertDiaryEntry): Promise<DiaryEntry> {
+    const [diaryEntry] = await db
+      .insert(diaryEntries)
+      .values(entry)
+      .returning();
+    return diaryEntry;
+  }
+
+  async getUserDiaryEntries(userId: number): Promise<DiaryEntry[]> {
+    return await db.select().from(diaryEntries).where(eq(diaryEntries.userId, userId));
+  }
+}
+
+export const storage = new DatabaseStorage();
