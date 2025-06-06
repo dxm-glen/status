@@ -430,9 +430,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Update user stats - support multiple stats
       const currentStats = await storage.getUserStats(userId);
+      const statIncreases: Record<string, number> = {};
+      
       if (currentStats) {
         const updates: Record<string, number> = {};
-        const statIncreases: Record<string, number> = {};
         
         // Generate random stat increases for each target stat (1-3 points based on difficulty)
         for (const stat of mission.targetStats) {
