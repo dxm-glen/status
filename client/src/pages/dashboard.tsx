@@ -33,16 +33,6 @@ export default function Dashboard() {
     enabled: !!user?.user,
   });
 
-  // Fetch recent stat events for each stat
-  const { data: statEventsData, error: statEventsError } = useQuery({
-    queryKey: ["/api/user/stat-events"],
-    enabled: !!user?.user,
-  });
-
-  // Debug log for stat events
-  console.log("Stat events data:", statEventsData);
-  console.log("Stat events error:", statEventsError);
-
   const retryMutation = useMutation({
     mutationFn: async () => {
       const response = await apiRequest("POST", "/api/retry-analysis", {});
@@ -98,7 +88,7 @@ export default function Dashboard() {
   const hasAnalysisData = statsData?.hasAnalysisData || false;
   const progressPercentage = Math.min(100, (stats.totalPoints / 1000) * 100);
 
-  // Helper function to get recent events for a specific stat using missions data
+  // Helper function to get recent events for a specific stat
   const getRecentEventsForStat = (statName: string) => {
     if (!missionsData?.missions) return [];
     
@@ -111,20 +101,11 @@ export default function Dashboard() {
       .sort((a: any, b: any) => new Date(b.completedAt).getTime() - new Date(a.completedAt).getTime())
       .slice(0, 3);
     
-    return completedMissions.map((mission: any) => {
-      const statIncrease = {
-        easy: 1,
-        medium: 2,
-        hard: 3
-      }[mission.difficulty] || 1;
-      
-      return {
-        description: mission.title,
-        date: mission.completedAt,
-        type: 'mission_complete',
-        statIncrease: Math.floor(Math.random() * statIncrease) + 1
-      };
-    });
+    return completedMissions.map((mission: any) => ({
+      description: mission.title,
+      date: mission.completedAt,
+      type: 'mission_complete'
+    }));
   };
 
   return (
@@ -247,10 +228,10 @@ export default function Dashboard() {
                             <Clock className="h-3 w-3" />
                             <span>최근 활동</span>
                           </div>
-                          {recentEvents.map((event: any, eventIndex: number) => (
+                          {recentEvents.map((event, eventIndex) => (
                             <div key={eventIndex} className="flex items-center gap-2 text-xs">
                               <Badge variant="outline" className="text-xs py-0 px-2 h-5">
-                                +{event.statIncrease}
+                                완료
                               </Badge>
                               <span className="text-muted-foreground truncate flex-1">
                                 {event.description}
