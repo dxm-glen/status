@@ -2,6 +2,7 @@ import { Link, useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import statusLogo from "@assets/Status.png";
 
 export default function Home() {
   const [, navigate] = useLocation();
@@ -23,7 +24,7 @@ export default function Home() {
       <section className="text-center mb-16">
         <div className="mb-8 flex justify-center">
           <img 
-            src="/attached_assets/Status.png" 
+            src={statusLogo} 
             alt="Status 로고" 
             className="h-32 w-auto"
           />

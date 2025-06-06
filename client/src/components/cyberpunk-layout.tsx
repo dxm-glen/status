@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import statusLogo from "@assets/Status.png";
 
 interface CyberpunkLayoutProps {
   children: ReactNode;
@@ -53,7 +54,7 @@ export function CyberpunkLayout({ children }: CyberpunkLayoutProps) {
           <div className="flex items-center space-x-6">
             <Link href="/" className="flex items-center space-x-3">
               <img 
-                src="/attached_assets/Status.png" 
+                src={statusLogo} 
                 alt="Status 로고" 
                 className="h-8 w-auto"
               />
