@@ -11,6 +11,7 @@ import GptAnalysis from "@/pages/gpt-analysis";
 import Registration from "@/pages/registration";
 import Dashboard from "@/pages/dashboard";
 import Missions from "@/pages/missions";
+import Achievements from "@/pages/achievements";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -24,6 +25,7 @@ function Router() {
         <Route path="/registration" component={Registration} />
         <Route path="/dashboard" component={Dashboard} />
         <Route path="/missions" component={Missions} />
+        <Route path="/achievements" component={Achievements} />
         <Route component={NotFound} />
       </Switch>
     </CyberpunkLayout>

@@ -342,6 +342,13 @@ export default function Dashboard() {
                 <Button 
                   variant="outline"
                   className="px-8 py-3"
+                  onClick={() => navigate("/achievements")}
+                >
+                  🏆 업적 보기
+                </Button>
+                <Button 
+                  variant="outline"
+                  className="px-8 py-3"
                   onClick={() => navigate("/")}
                 >
                   홈으로 돌아가기

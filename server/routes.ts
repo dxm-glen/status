@@ -296,6 +296,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get completed missions with completion level data
+  app.get("/api/user/missions/completed", async (req, res) => {
+    const userId = req.session.userId;
+    if (!userId) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    try {
+      const missions = await storage.getUserMissions(userId);
+      const completedMissions = missions.filter(mission => mission.isCompleted && mission.completedAtLevel);
+      res.json({ missions: completedMissions });
+    } catch (error) {
+      console.error("Get completed missions error:", error);
+      res.status(500).json({ message: "Failed to fetch completed missions" });
+    }
+  });
+
   // Get recent stat events for dashboard
   app.get("/api/user/stat-events", async (req, res) => {
     const userId = req.session.userId;
