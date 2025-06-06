@@ -33,6 +33,12 @@ export default function Dashboard() {
     enabled: !!user?.user,
   });
 
+  // Fetch recent stat events for each stat
+  const { data: statEventsData } = useQuery({
+    queryKey: ["/api/user/stat-events"],
+    enabled: !!user?.user,
+  });
+
   const retryMutation = useMutation({
     mutationFn: async () => {
       const response = await apiRequest("POST", "/api/retry-analysis", {});
@@ -87,12 +93,6 @@ export default function Dashboard() {
   const analysisStatus = statsData?.analysisStatus || 'none';
   const hasAnalysisData = statsData?.hasAnalysisData || false;
   const progressPercentage = Math.min(100, (stats.totalPoints / 1000) * 100);
-
-  // Fetch recent stat events for each stat
-  const { data: statEventsData } = useQuery({
-    queryKey: ["/api/user/stat-events"],
-    enabled: !!user?.user,
-  });
 
   // Helper function to get recent events for a specific stat
   const getRecentEventsForStat = (statName: string) => {
