@@ -521,7 +521,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         for (const stat of flatStats) {
           const currentValue = userStats[stat as keyof typeof userStats] as number;
           const randomIncrease = Math.floor(Math.random() * statIncrease) + 1; // 1 to statIncrease points
-          updates[stat] = Math.min(99, currentValue + randomIncrease);
+          updates[stat] = currentValue + randomIncrease; // Remove 99 limit
           statIncreases[stat] = randomIncrease;
         }
         
