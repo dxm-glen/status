@@ -44,6 +44,10 @@ export interface IStorage {
   // Stat events operations
   createStatEvent(event: InsertStatEvent): Promise<StatEvent>;
   getRecentStatEvents(userId: number, statName?: string, limit?: number): Promise<StatEvent[]>;
+  
+  // Level up operations
+  checkLevelUpEligibility(userId: number): Promise<boolean>;
+  levelUpUser(userId: number): Promise<UserStats>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -79,11 +83,37 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateUserStats(userId: number, updates: Partial<UserStats>): Promise<UserStats> {
+    // Calculate total points if individual stats are updated
+    if (updates.intelligence !== undefined || updates.creativity !== undefined || 
+        updates.social !== undefined || updates.physical !== undefined ||
+        updates.emotional !== undefined || updates.focus !== undefined ||
+        updates.adaptability !== undefined) {
+      
+      const currentStats = await this.getUserStats(userId);
+      if (currentStats) {
+        const newStats = { ...currentStats, ...updates };
+        updates.totalPoints = newStats.intelligence + newStats.creativity + newStats.social + 
+                            newStats.physical + newStats.emotional + newStats.focus + newStats.adaptability;
+      }
+    }
+
     const [updatedStats] = await db
       .update(userStats)
       .set({ ...updates, updatedAt: new Date() })
       .where(eq(userStats.userId, userId))
       .returning();
+
+    // Check level up eligibility after stats update
+    const canLevelUp = await this.checkLevelUpEligibility(userId);
+    if (canLevelUp !== updatedStats.canLevelUp) {
+      const [finalStats] = await db
+        .update(userStats)
+        .set({ canLevelUp })
+        .where(eq(userStats.userId, userId))
+        .returning();
+      return finalStats;
+    }
+
     return updatedStats;
   }
 
@@ -156,6 +186,47 @@ export class DatabaseStorage implements IStorage {
       .where(eq(statEvents.userId, userId))
       .orderBy(desc(statEvents.createdAt))
       .limit(limit);
+  }
+
+  async checkLevelUpEligibility(userId: number): Promise<boolean> {
+    const stats = await this.getUserStats(userId);
+    if (!stats) return false;
+
+    // 레벨별 조건 확인
+    const requiredMinStat = stats.level * 50; // 각 레벨 * 50이 최소 스탯
+    const requiredTotalStats = stats.level * 100; // 각 레벨 * 100이 최소 총합
+
+    const allStatsAboveMin = 
+      stats.intelligence >= requiredMinStat &&
+      stats.creativity >= requiredMinStat &&
+      stats.social >= requiredMinStat &&
+      stats.physical >= requiredMinStat &&
+      stats.emotional >= requiredMinStat &&
+      stats.focus >= requiredMinStat &&
+      stats.adaptability >= requiredMinStat;
+
+    const totalStatsSum = stats.intelligence + stats.creativity + stats.social + 
+                         stats.physical + stats.emotional + stats.focus + stats.adaptability;
+
+    return allStatsAboveMin && totalStatsSum >= requiredTotalStats;
+  }
+
+  async levelUpUser(userId: number): Promise<UserStats> {
+    const canLevelUp = await this.checkLevelUpEligibility(userId);
+    if (!canLevelUp) {
+      throw new Error("레벨업 조건을 만족하지 않습니다.");
+    }
+
+    const [updatedStats] = await db.update(userStats)
+      .set({ 
+        level: sql`${userStats.level} + 1`,
+        canLevelUp: false,
+        updatedAt: new Date()
+      })
+      .where(eq(userStats.userId, userId))
+      .returning();
+
+    return updatedStats;
   }
 }
 
