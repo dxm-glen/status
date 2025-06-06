@@ -282,16 +282,16 @@ export default function Dashboard() {
                 const percentage = getStatPercentage(value, maxValue);
                 
                 return (
-                  <div key={index} className="clean-card p-4 cursor-pointer hover:shadow-lg transition-all group">
+                  <div key={key} className="clean-card p-4 cursor-pointer hover:shadow-lg transition-all group">
                     <div className="flex justify-between items-center mb-3">
                       <span className="text-foreground font-medium text-sm">
-                        {stat.name}
+                        {name}
                       </span>
-                      <span className="text-foreground font-semibold text-lg">{stat.value}/{maxValue}</span>
+                      <span className="text-foreground font-semibold text-lg">{value}/{maxValue}</span>
                     </div>
                     
                     <div className="text-muted-foreground text-xs leading-relaxed group-hover:text-foreground transition-colors mb-3">
-                      {stat.description}
+                      {description}
                     </div>
                     
                     <div className="progress-container h-2 mb-3">
@@ -303,7 +303,7 @@ export default function Dashboard() {
 
                     {/* Recent Events for this stat */}
                     {(() => {
-                      const recentEvents = getRecentEventsForStat(stat.key);
+                      const recentEvents = getRecentEventsForStat(key);
                       return recentEvents.length > 0 && (
                         <div className="mt-3 space-y-1">
                           <div className="flex items-center gap-1 text-xs text-muted-foreground mb-2">
