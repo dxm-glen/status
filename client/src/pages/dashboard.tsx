@@ -77,33 +77,6 @@ export default function Dashboard() {
     },
   });
 
-  const reanalyzeMutation = useMutation({
-    mutationFn: async () => {
-      const response = await apiRequest("/api/user/reanalyze", {
-        method: "POST",
-      });
-      return response;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/user/stats"] });
-      toast({
-        title: "재분석 완료!",
-        description: "AI가 당신의 최신 성장을 분석했습니다.",
-      });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "재분석 실패",
-        description: error.message || "재분석에 실패했습니다.",
-        variant: "destructive"
-      });
-    }
-  });
-
-  const handleReanalyze = () => {
-    reanalyzeMutation.mutate();
-  };
-
   // If not logged in, redirect to home
   if (!userLoading && !user?.user) {
     navigate("/");
@@ -193,30 +166,7 @@ export default function Dashboard() {
                   {/* AI Analysis Summary */}
                   {statsData?.analysisSummary && (
                     <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
-                      <div className="flex justify-between items-start mb-3">
-                        <div className="text-primary font-medium text-sm">당신에 대한 AI 분석</div>
-                        <div className="flex items-center gap-2">
-                          <div className="text-xs text-muted-foreground">
-                            {(() => {
-                              const latestAnalysis = statsData.analysisData?.[0];
-                              if (latestAnalysis?.createdAt) {
-                                const date = new Date(latestAnalysis.createdAt);
-                                return `${date.toLocaleDateString('ko-KR')} 업데이트`;
-                              }
-                              return '';
-                            })()}
-                          </div>
-                          <Button 
-                            size="sm" 
-                            variant="outline" 
-                            className="h-6 px-2 text-xs"
-                            onClick={handleReanalyze}
-                            disabled={reanalyzeMutation.isPending}
-                          >
-                            {reanalyzeMutation.isPending ? "분석 중..." : "재분석"}
-                          </Button>
-                        </div>
-                      </div>
+                      <div className="text-primary font-medium text-sm mb-3">당신에 대한 AI 분석</div>
                       <p className="text-foreground text-sm leading-relaxed mb-4">
                         {statsData.analysisSummary}
                       </p>

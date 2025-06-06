@@ -48,7 +48,6 @@ export const missions = pgTable("missions", {
   targetStats: text("target_stats").array().notNull(), // which stats this mission improves (1-3 stats)
   isCompleted: boolean("is_completed").notNull().default(false),
   isAiGenerated: boolean("is_ai_generated").notNull().default(false),
-  completedAtLevel: integer("completed_at_level"), // user level when mission was completed
   createdAt: timestamp("created_at").defaultNow().notNull(),
   completedAt: timestamp("completed_at"),
 });
