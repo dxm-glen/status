@@ -57,10 +57,7 @@ export default function Dashboard() {
   });
 
   // Fetch current level completed missions count
-  const { data: completedCountData } = useQuery({
-    queryKey: ["/api/user/missions/completed/current-level"],
-    enabled: !!user?.user,
-  });
+
 
   const retryMutation = useMutation({
     mutationFn: async () => {
@@ -166,24 +163,7 @@ export default function Dashboard() {
               >👤 프로필 상세 추가</Button>
             </div>
 
-            {/* Completed Quests Count */}
-            {completedCountData && (
-              <div className="bg-background/30 border border-secondary p-4 rounded-lg mb-8">
-                <div className="flex items-center justify-between">
-                  <div className="text-sm text-muted-foreground">
-                    레벨 {completedCountData.level}에서 완료된 퀘스트: <span className="text-accent font-semibold">{completedCountData.count}개</span>
-                  </div>
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => navigate("/achievements")}
-                    className="text-xs px-3 py-1"
-                  >
-                    전체 보기
-                  </Button>
-                </div>
-              </div>
-            )}
+
             
             {/* Character Level Display */}
             <div className="text-center mb-8">
