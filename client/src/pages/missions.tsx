@@ -12,7 +12,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { formatStatIncreases, DIFFICULTY_COLORS, DIFFICULTY_LABELS, STAT_NAMES } from "@/lib/constants";
-import { CheckCircle, Clock, Plus, Sparkles, Trophy, Trash2 } from "lucide-react";
+import { CheckCircle, Clock, Plus, Sparkles, Trophy, Trash2, User, ArrowRight } from "lucide-react";
 
 interface Mission {
   id: number;
@@ -60,6 +60,12 @@ export default function Missions() {
   // Fetch user stats to get current level
   const { data: statsData } = useQuery({
     queryKey: ["/api/user/stats"],
+    refetchOnWindowFocus: false,
+  });
+
+  // Fetch user profile
+  const { data: profileData } = useQuery({
+    queryKey: ["/api/user/profile"],
     refetchOnWindowFocus: false,
   });
 
@@ -176,6 +182,10 @@ export default function Missions() {
   
   // Get current user level
   const currentLevel = statsData?.stats?.level || 1;
+  
+  // Get profile data
+  const profile = profileData?.profile;
+  const hasDetailedProfile = profile && profile.desiredSelf && profile.interests;
   
   // Get all completed missions for current level (no limit)
   const allCurrentLevelCompletedMissions = allCompletedMissions
@@ -406,6 +416,34 @@ export default function Missions() {
             </DialogContent>
           </Dialog>
         </div>
+
+        {/* Profile Enhancement Section */}
+        {!hasDetailedProfile && (
+          <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 border-blue-200 dark:border-blue-800">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-4">
+                  <div className="bg-blue-100 dark:bg-blue-900 p-3 rounded-full">
+                    <User className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-lg mb-1">🎯 더 개인화된 퀘스트 받기</h3>
+                    <p className="text-muted-foreground text-sm">
+                      프로필에 상세 정보를 추가하면 AI가 더 개인화된 퀘스트를 생성합니다
+                    </p>
+                  </div>
+                </div>
+                <Button 
+                  onClick={() => navigate("/profile")}
+                  className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  프로필 상세 추가
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Active Missions */}
         {activeMissions.length > 0 && (
