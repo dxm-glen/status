@@ -20,7 +20,7 @@ export interface UserStats {
   level: number;
 }
 
-export async function analyzeUserInput(inputMethod: string, inputData: any): Promise<UserStats & { summary?: string }> {
+export async function analyzeUserInput(inputMethod: string, inputData: any): Promise<UserStats & { summary?: string; statExplanations?: any }> {
   let analysisPrompt = "";
   
   if (inputMethod === "questionnaire") {
@@ -142,7 +142,9 @@ JSON만 출력하고 다른 설명은 없이 응답해주세요.
       focus: Math.min(99, Math.max(1, stats.focus)),
       adaptability: Math.min(99, Math.max(1, stats.adaptability)),
       totalPoints,
-      level
+      level,
+      summary: stats.summary,
+      statExplanations: stats.statExplanations
     };
     
   } catch (error) {

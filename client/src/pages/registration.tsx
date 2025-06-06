@@ -176,10 +176,19 @@ export default function Registration() {
 
               <Button 
                 type="submit" 
-                className="cyber-button w-full py-4 text-lg"
+                className="btn-primary w-full py-4 text-lg"
                 disabled={registerMutation.isPending}
               >
-                {registerMutation.isPending ? "계정 생성 중..." : "계정 생성 및 분석 시작 >"}
+                {registerMutation.isPending ? (
+                  <div className="flex items-center justify-center space-x-3">
+                    <div className="flex space-x-1">
+                      <div className="h-2 w-2 bg-white rounded-full animate-bounce" style={{animationDelay: '0ms'}}></div>
+                      <div className="h-2 w-2 bg-white rounded-full animate-bounce" style={{animationDelay: '150ms'}}></div>
+                      <div className="h-2 w-2 bg-white rounded-full animate-bounce" style={{animationDelay: '300ms'}}></div>
+                    </div>
+                    <span>당신에 대한 분석을 정리하는 중...</span>
+                  </div>
+                ) : "계정 생성 및 분석 시작"}
               </Button>
             </form>
           </CardContent>
