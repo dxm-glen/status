@@ -563,8 +563,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         );
         
         // AI 분석 수행
-        const { analyzeUserProgress } = require('./bedrock');
-        const progressAnalysis = await analyzeUserProgress(updatedStats, completedMissionsAtCurrentLevel);
+        const bedrock = await import('./bedrock');
+        const progressAnalysis = await bedrock.analyzeUserProgress(updatedStats, completedMissionsAtCurrentLevel);
         
         // 분석 결과를 저장
         await storage.createUserAnalysis({
@@ -596,6 +596,55 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Level up error:", error);
       res.status(500).json({ message: "레벨업 실패" });
+    }
+  });
+
+  // Manual AI re-analysis endpoint
+  app.post("/api/user/reanalyze", async (req, res) => {
+    const userId = req.session.userId;
+    if (!userId) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    try {
+      // Get current user stats and missions
+      const currentStats = await storage.getUserStats(userId);
+      if (!currentStats) {
+        return res.status(404).json({ message: "User stats not found" });
+      }
+
+      const allMissions = await storage.getUserMissions(userId);
+      const completedMissions = allMissions.filter(mission => mission.isCompleted);
+
+      // Get previous analysis for context
+      const previousAnalyses = await storage.getUserAnalysis(userId);
+      const latestAnalysis = previousAnalyses[0];
+
+      // AI 재분석 수행
+      const bedrock = await import('./bedrock');
+      const progressAnalysis = await bedrock.analyzeUserProgress(currentStats, completedMissions);
+
+      // 분석 결과를 저장
+      await storage.createUserAnalysis({
+        userId,
+        inputMethod: 'manual_reanalysis',
+        inputData: {
+          level: currentStats.level,
+          totalMissions: completedMissions.length,
+          previousAnalysisDate: latestAnalysis?.createdAt
+        },
+        analysisResult: progressAnalysis,
+        summary: progressAnalysis.summary,
+        statExplanations: progressAnalysis.statAnalysis
+      });
+
+      res.json({ 
+        message: "재분석이 완료되었습니다!",
+        analysis: progressAnalysis
+      });
+    } catch (error) {
+      console.error("Manual reanalysis error:", error);
+      res.status(500).json({ message: "재분석 실패" });
     }
   });
 
