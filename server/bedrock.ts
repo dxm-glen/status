@@ -93,6 +93,58 @@ ${gptResponse}
 
 JSON만 출력하고 다른 설명은 없이 응답해주세요.
 `;
+  } else if (inputMethod === "profile-update") {
+    // 프로필 업데이트 기반 재분석
+    const { profile, completedQuests, currentStats } = inputData;
+    
+    analysisPrompt = `
+사용자의 최신 프로필 정보와 완료된 퀘스트를 바탕으로 새로운 성격 분석을 생성해주세요.
+
+현재 프로필:
+- 취미: ${profile?.hobbies || '정보 없음'}
+- 관심사: ${profile?.interests || '정보 없음'}
+- 목표: ${profile?.goals || '정보 없음'}
+- 선호하는 활동: ${profile?.preferredActivities || '정보 없음'}
+- 학습 스타일: ${profile?.learningStyle || '정보 없음'}
+- 성격 유형: ${profile?.personalityType || '정보 없음'}
+
+완료된 퀘스트 (최근 10개):
+${completedQuests.map(q => `- ${q.title} (난이도: ${q.difficulty}, 대상 스탯: ${q.targetStats.join(', ')})`).join('\n')}
+
+현재 스탯:
+- 지능: ${currentStats.intelligence}
+- 창의성: ${currentStats.creativity}
+- 사회성: ${currentStats.social}
+- 체력: ${currentStats.physical}
+- 감성: ${currentStats.emotional}
+- 집중력: ${currentStats.focus}
+- 적응력: ${currentStats.adaptability}
+
+위 정보를 종합하여 사용자의 성장과 변화를 반영한 새로운 성격 분석을 해주세요.
+
+다음 형식으로 JSON을 생성해주세요:
+{
+  "summary": "프로필과 완료된 퀘스트를 바탕으로 파악한 사용자의 현재 성격과 성장 방향을 2-3문장으로 분석",
+  "statExplanations": {
+    "intelligence": "현재 지능 스탯에 대한 분석과 완료된 퀘스트들이 어떻게 이 영역의 성장에 기여했는지 설명",
+    "creativity": "현재 창의성 스탯에 대한 분석과 완료된 퀘스트들이 어떻게 이 영역의 성장에 기여했는지 설명",
+    "social": "현재 사회성 스탯에 대한 분석과 완료된 퀘스트들이 어떻게 이 영역의 성장에 기여했는지 설명",
+    "physical": "현재 체력 스탯에 대한 분석과 완료된 퀘스트들이 어떻게 이 영역의 성장에 기여했는지 설명",
+    "emotional": "현재 감성 스탯에 대한 분석과 완료된 퀘스트들이 어떻게 이 영역의 성장에 기여했는지 설명",
+    "focus": "현재 집중력 스탯에 대한 분석과 완료된 퀘스트들이 어떻게 이 영역의 성장에 기여했는지 설명",
+    "adaptability": "현재 적응력 스탯에 대한 분석과 완료된 퀘스트들이 어떻게 이 영역의 성장에 기여했는지 설명"
+  }
+}
+
+JSON만 출력하고 다른 설명은 없이 응답해주세요.
+`;
+  }
+
+  console.log("Analysis prompt length:", analysisPrompt?.length || 0);
+  console.log("Input method:", inputMethod);
+  
+  if (!analysisPrompt || analysisPrompt.trim().length === 0) {
+    throw new Error(`Empty analysis prompt for input method: ${inputMethod}`);
   }
 
   try {
@@ -149,9 +201,12 @@ JSON만 출력하고 다른 설명은 없이 응답해주세요.
     
   } catch (error) {
     console.error("Bedrock analysis error:", error);
-    console.log("Using fallback analysis for development");
+    console.log("Using dynamic fallback analysis");
     
-    // Development fallback with realistic analysis
+    // Generate dynamic analysis based on user data and timestamp
+    const timestamp = Date.now();
+    const seed = Math.floor(timestamp / 10000); // Changes every 10 seconds for testing
+    
     let fallbackStats, fallbackSummary, fallbackExplanations;
     
     if (inputMethod === "questionnaire") {
