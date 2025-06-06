@@ -123,13 +123,13 @@ export default function Missions() {
         adaptability: "적응력"
       };
       
-      const increases = Object.entries(data.statIncrease)
-        .map(([stat, points]) => `${statNames[stat as keyof typeof statNames]} +${points}`)
+      const increases = Object.entries(data.statIncrease || {})
+        .map(([stat, points]) => `${statNames[stat as keyof typeof statNames] || stat} +${points}`)
         .join(", ");
       
       toast({
         title: "미션 완료!",
-        description: `축하합니다! ${increases}점 증가했습니다.`,
+        description: `축하합니다! ${increases} 증가했습니다.`,
       });
       setCompletingMissionId(null);
       queryClient.invalidateQueries({ queryKey: ["/api/user/missions"] });

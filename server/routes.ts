@@ -435,10 +435,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (currentStats) {
         const updates: Record<string, number> = {};
         
-        // Generate random stat increases for each target stat (1-3 points based on difficulty)
+        // Generate random stat increases for each target stat (1 to statIncrease points based on difficulty)
         for (const stat of mission.targetStats) {
+          const currentValue = currentStats[stat as keyof typeof currentStats] as number;
           const randomIncrease = Math.floor(Math.random() * statIncrease) + 1; // 1 to statIncrease points
-          updates[stat] = Math.min(99, currentStats[stat as keyof typeof currentStats] + randomIncrease);
+          updates[stat] = Math.min(99, currentValue + randomIncrease);
           statIncreases[stat] = randomIncrease;
         }
         
