@@ -254,7 +254,7 @@ export default function Dashboard() {
                             onClick={() => setShowAnalysisDetails(!showAnalysisDetails)}
                             className="flex items-center gap-2 text-primary font-medium text-xs mb-2 hover:text-primary/80 transition-colors"
                           >
-                            <span>초기 캐릭터 스탯 설정 근거</span>
+                            <span>스탯 설정 상세</span>
                             {showAnalysisDetails ? (
                               <ChevronUp className="h-3 w-3" />
                             ) : (
