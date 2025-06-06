@@ -37,6 +37,16 @@ export default function Home() {
             <div className="text-4xl">📊</div>
           </div>
         </div>
+
+        {/* Login Button */}
+        <div className="mb-8">
+          <Button 
+            onClick={() => navigate("/auth")}
+            className="px-8 py-3 text-lg"
+          >
+            로그인 / 회원가입
+          </Button>
+        </div>
       </section>
       {/* Input Method Selection */}
       <section className="max-w-4xl mx-auto mb-16">

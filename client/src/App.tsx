@@ -18,6 +18,7 @@ function Router() {
     <CyberpunkLayout>
       <Switch>
         <Route path="/" component={Home} />
+        <Route path="/auth" component={AuthPage} />
         <Route path="/questionnaire" component={Questionnaire} />
         <Route path="/gpt-analysis" component={GptAnalysis} />
         <Route path="/registration" component={Registration} />
