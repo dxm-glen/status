@@ -340,7 +340,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           description: mission.description,
           difficulty: mission.difficulty,
           estimatedTime: mission.estimatedTime,
-          targetStat: mission.targetStat,
+          targetStats: Array.isArray(mission.targetStats) ? mission.targetStats : [mission.targetStat || mission.targetStats],
           isAiGenerated: true
         });
         savedMissions.push(savedMission);
@@ -428,12 +428,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         hard: 3
       }[mission.difficulty] || 1;
 
-      // Update user stats
+      // Update user stats - support multiple stats
       const currentStats = await storage.getUserStats(userId);
       if (currentStats) {
-        const updates = {
-          [mission.targetStat]: Math.min(99, currentStats[mission.targetStat as keyof typeof currentStats] + statIncrease)
-        };
+        const updates: Record<string, number> = {};
+        const statIncreases: Record<string, number> = {};
+        
+        // Generate random stat increases for each target stat (1-3 points based on difficulty)
+        for (const stat of mission.targetStats) {
+          const randomIncrease = Math.floor(Math.random() * statIncrease) + 1; // 1 to statIncrease points
+          updates[stat] = Math.min(99, currentStats[stat as keyof typeof currentStats] + randomIncrease);
+          statIncreases[stat] = randomIncrease;
+        }
         
         // Recalculate total points and level
         const newStats = { ...currentStats, ...updates };
@@ -451,7 +457,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ 
         message: "Mission completed successfully",
         mission,
-        statIncrease: { [mission.targetStat]: statIncrease }
+        statIncrease: statIncreases
       });
     } catch (error) {
       console.error("Complete mission error:", error);

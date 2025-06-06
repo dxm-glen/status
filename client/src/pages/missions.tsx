@@ -18,7 +18,7 @@ interface Mission {
   description: string;
   difficulty: 'easy' | 'medium' | 'hard';
   estimatedTime: string;
-  targetStat: string;
+  targetStats: string[];
   isCompleted: boolean;
   isAiGenerated: boolean;
   createdAt: string;
@@ -30,7 +30,7 @@ interface NewMission {
   description: string;
   difficulty: 'easy' | 'medium' | 'hard';
   estimatedTime: string;
-  targetStat: string;
+  targetStats: string[];
 }
 
 export default function Missions() {
@@ -40,7 +40,7 @@ export default function Missions() {
     description: "",
     difficulty: "easy",
     estimatedTime: "",
-    targetStat: "intelligence"
+    targetStats: []
   });
   const [completingMissionId, setCompletingMissionId] = useState<number | null>(null);
   const [deletingMissionId, setDeletingMissionId] = useState<number | null>(null);
@@ -93,7 +93,7 @@ export default function Missions() {
         description: "",
         difficulty: "easy",
         estimatedTime: "",
-        targetStat: "intelligence"
+        targetStats: []
       });
       queryClient.invalidateQueries({ queryKey: ["/api/user/missions"] });
     },
@@ -113,7 +113,7 @@ export default function Missions() {
       return response.json();
     },
     onSuccess: (data) => {
-      const statName = {
+      const statNames = {
         intelligence: "지능",
         creativity: "창의성",
         social: "사회성",
@@ -121,11 +121,15 @@ export default function Missions() {
         emotional: "감성",
         focus: "집중력",
         adaptability: "적응력"
-      }[Object.keys(data.statIncrease)[0]] || "스탯";
+      };
+      
+      const increases = Object.entries(data.statIncrease)
+        .map(([stat, points]) => `${statNames[stat as keyof typeof statNames]} +${points}`)
+        .join(", ");
       
       toast({
         title: "미션 완료!",
-        description: `축하합니다! ${statName}이 ${Object.values(data.statIncrease)[0]}점 증가했습니다.`,
+        description: `축하합니다! ${increases}점 증가했습니다.`,
       });
       setCompletingMissionId(null);
       queryClient.invalidateQueries({ queryKey: ["/api/user/missions"] });

@@ -30,7 +30,7 @@ export interface Mission {
   description: string;
   difficulty: 'easy' | 'medium' | 'hard';
   estimatedTime: string;
-  targetStat: string;
+  targetStats: string[];
   isCompleted: boolean;
   isAiGenerated: boolean;
 }
