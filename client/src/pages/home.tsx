@@ -40,9 +40,7 @@ export default function Home() {
       </section>
       {/* Input Method Selection */}
       <section className="max-w-4xl mx-auto mb-16">
-        <h2 className="text-2xl font-semibold text-foreground text-center mb-12">
-          나를 알아보는 방식을 선택하세요
-        </h2>
+        <h2 className="text-2xl font-semibold text-foreground text-center mb-12">캐릭터 생성 방식을 선택하세요</h2>
         
         <div className="grid md:grid-cols-2 gap-8">
           {/* Method A: Questionnaire */}
