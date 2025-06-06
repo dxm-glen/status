@@ -54,6 +54,12 @@ export default function Missions() {
     refetchOnWindowFocus: false,
   });
 
+  // Fetch user stats to get current level
+  const { data: statsData } = useQuery({
+    queryKey: ["/api/user/stats"],
+    refetchOnWindowFocus: false,
+  });
+
   // Generate AI missions
   const generateMissionsMutation = useMutation({
     mutationFn: async () => {
@@ -180,7 +186,16 @@ export default function Missions() {
 
   const missions: Mission[] = missionsData?.missions || [];
   const activeMissions = missions.filter(m => !m.isCompleted);
-  const completedMissions = missions.filter(m => m.isCompleted);
+  const allCompletedMissions = missions.filter(m => m.isCompleted);
+  
+  // Get current user level
+  const currentLevel = statsData?.stats?.level || 1;
+  
+  // Filter completed missions to show only current level missions (max 3)
+  const currentLevelCompletedMissions = allCompletedMissions
+    .filter(m => (m as any).completedAtLevel === currentLevel)
+    .sort((a, b) => new Date(b.completedAt!).getTime() - new Date(a.completedAt!).getTime())
+    .slice(0, 3);
   
   const maxMissions = 10;
   const currentActiveCount = activeMissions.length;
@@ -496,15 +511,15 @@ export default function Missions() {
           </div>
         )}
 
-        {/* Completed Missions */}
-        {completedMissions.length > 0 && (
+        {/* Completed Missions - Current Level Only */}
+        {(currentLevelCompletedMissions.length > 0 || allCompletedMissions.length > 0) && (
           <div>
             <h2 className="text-xl font-semibold mb-4 text-foreground flex items-center">
               <Trophy className="h-5 w-5 mr-2 text-yellow-500" />
-              완료된 퀘스트
+              레벨 {currentLevel}에서 완료된 퀘스트 ({allCompletedMissions.length})
             </h2>
             <div className="grid gap-4">
-              {completedMissions.map((mission) => (
+              {currentLevelCompletedMissions.map((mission) => (
                 <Card key={mission.id} className="clean-card opacity-75">
                   <CardContent className="p-6">
                     <div className="flex items-start justify-between mb-4">
