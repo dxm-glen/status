@@ -187,6 +187,12 @@ export default function Missions() {
   const profile = profileData?.profile;
   const hasDetailedProfile = profile && profile.desiredSelf && profile.interests;
   
+  // Debug profile data
+  console.log('Profile data:', profile);
+  console.log('Has detailed profile:', hasDetailedProfile);
+  console.log('desiredSelf:', profile?.desiredSelf);
+  console.log('interests:', profile?.interests);
+  
   // Get all completed missions for current level (no limit)
   const allCurrentLevelCompletedMissions = allCompletedMissions
     .filter(m => (m as any).completedAtLevel === currentLevel)
