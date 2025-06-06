@@ -56,9 +56,7 @@ export function CyberpunkLayout({ children }: CyberpunkLayoutProps) {
                 Status
               </div>
             </Link>
-            <div className="text-sm text-muted-foreground hidden md:block">
-              RPG 캐릭터 성장 시스템
-            </div>
+            <div className="text-sm text-muted-foreground hidden md:block">당신을 위한 현실의 상태창 서비스</div>
           </div>
           
           <div className="flex items-center space-x-4">
