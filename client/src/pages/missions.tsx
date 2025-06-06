@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -34,6 +35,7 @@ interface NewMission {
 }
 
 export default function Missions() {
+  const [, navigate] = useLocation();
   const [isAddingMission, setIsAddingMission] = useState(false);
   const [newMission, setNewMission] = useState<NewMission>({
     title: "",
