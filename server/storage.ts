@@ -21,29 +21,31 @@ export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
-  
+
   // User stats operations
   getUserStats(userId: number): Promise<UserStats | undefined>;
   createUserStats(stats: InsertUserStats): Promise<UserStats>;
   updateUserStats(userId: number, stats: Partial<UserStats>): Promise<UserStats>;
-  
+
   // User analysis operations
   createUserAnalysis(analysis: InsertUserAnalysis): Promise<UserAnalysis>;
   getUserAnalysis(userId: number): Promise<UserAnalysis[]>;
-  
+
   // Mission operations
   createMission(mission: InsertMission): Promise<Mission>;
   getUserMissions(userId: number): Promise<Mission[]>;
   updateMission(id: number, updates: Partial<Mission>): Promise<Mission>;
   deleteMission(id: number): Promise<void>;
-  
+
   // Diary operations
   createDiaryEntry(entry: InsertDiaryEntry): Promise<DiaryEntry>;
   getUserDiaryEntries(userId: number): Promise<DiaryEntry[]>;
-  
+
   // Stat events operations
   createStatEvent(event: InsertStatEvent): Promise<StatEvent>;
   getRecentStatEvents(userId: number, statName?: string, limit?: number): Promise<StatEvent[]>;
+
+  levelUpUser(userId: number): Promise<UserStats>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -78,12 +80,39 @@ export class DatabaseStorage implements IStorage {
     return userStat;
   }
 
-  async updateUserStats(userId: number, updates: Partial<UserStats>): Promise<UserStats> {
+  async updateUserStats(userId: number, stats: Partial<UserStats>): Promise<UserStats> {
+    // Calculate total points if individual stats are being updated
+    if (stats.intelligence !== undefined || stats.creativity !== undefined || 
+        stats.social !== undefined || stats.physical !== undefined ||
+        stats.emotional !== undefined || stats.focus !== undefined ||
+        stats.adaptability !== undefined) {
+
+      const currentStats = await this.getUserStats(userId);
+      if (currentStats) {
+        const newStats = { ...currentStats, ...stats };
+        stats.totalPoints = newStats.intelligence + newStats.creativity + newStats.social + 
+                           newStats.physical + newStats.emotional + newStats.focus + newStats.adaptability;
+      }
+    }
+
     const [updatedStats] = await db
       .update(userStats)
-      .set({ ...updates, updatedAt: new Date() })
+      .set({ ...stats, updatedAt: new Date() })
       .where(eq(userStats.userId, userId))
       .returning();
+
+    // 레벨업 조건 체크
+    const { checkLevelUpConditions } = await import('./levelSystem');
+    const canLevelUp = checkLevelUpConditions(updatedStats);
+
+    if (canLevelUp && !updatedStats.levelUpReady) {
+      await db
+        .update(userStats)
+        .set({ levelUpReady: true })
+        .where(eq(userStats.userId, userId));
+      updatedStats.levelUpReady = true;
+    }
+
     return updatedStats;
   }
 
@@ -151,11 +180,41 @@ export class DatabaseStorage implements IStorage {
         .orderBy(desc(statEvents.createdAt))
         .limit(limit);
     }
-    
+
     return await db.select().from(statEvents)
       .where(eq(statEvents.userId, userId))
       .orderBy(desc(statEvents.createdAt))
       .limit(limit);
+  }
+
+  async levelUpUser(userId: number): Promise<UserStats> {
+    const currentStats = await this.getUserStats(userId);
+    if (!currentStats) {
+      throw new Error("User stats not found");
+    }
+
+    const newLevel = currentStats.level + 1;
+    const [updatedStats] = await db
+      .update(userStats)
+      .set({ 
+        level: newLevel,
+        levelUpReady: false,
+        updatedAt: new Date()
+      })
+      .where(eq(userStats.userId, userId))
+      .returning();
+
+    // 레벨업 이벤트 기록
+    await this.createStatEvent({
+      userId,
+      statName: 'level',
+      eventType: 'level_up',
+      eventDescription: `레벨 ${currentStats.level}에서 레벨 ${newLevel}로 레벨업!`,
+      statChange: 1,
+      sourceId: null,
+    });
+
+    return updatedStats;
   }
 }
 
