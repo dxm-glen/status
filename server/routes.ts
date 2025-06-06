@@ -367,7 +367,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Generate missions using Bedrock AI
       const profileData = userProfile ? {
-        currentSelf: userProfile.currentSelf || undefined,
+        gender: userProfile.gender || undefined,
+        ageGroup: userProfile.ageGroup || undefined,
+        affiliation: userProfile.affiliation || undefined,
+        interests: userProfile.interests || undefined,
+        additionalInfo: userProfile.additionalInfo || undefined,
         desiredSelf: userProfile.desiredSelf || undefined
       } : undefined;
       const generatedMissions = await generateMissions(userId, userStats, missionsToGenerate, profileData);
