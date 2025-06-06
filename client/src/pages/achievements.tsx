@@ -1,8 +1,9 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Trophy, Calendar, Clock, Target } from "lucide-react";
+import { Trophy, Calendar, Clock, Target, RefreshCw } from "lucide-react";
 
 interface Mission {
   id: number;
@@ -42,9 +43,15 @@ const statLabels: { [key: string]: string } = {
 };
 
 export default function Achievements() {
+  const queryClient = useQueryClient();
+  
   const { data: missions, isLoading } = useQuery({
     queryKey: ["/api/user/missions/completed"],
   });
+
+  const handleRefresh = () => {
+    queryClient.invalidateQueries({ queryKey: ["/api/user/missions/completed"] });
+  };
 
   if (isLoading) {
     return (
@@ -90,9 +97,20 @@ export default function Achievements() {
 
   return (
     <div className="container mx-auto p-6">
-      <div className="flex items-center gap-2 mb-6">
-        <Trophy className="h-6 w-6 text-accent" />
-        <h1 className="text-2xl font-bold text-foreground">업적</h1>
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-2">
+          <Trophy className="h-6 w-6 text-accent" />
+          <h1 className="text-2xl font-bold text-foreground">업적</h1>
+        </div>
+        <Button 
+          onClick={handleRefresh}
+          variant="outline"
+          size="sm"
+          className="flex items-center gap-2"
+        >
+          <RefreshCw className="h-4 w-4" />
+          새로고침
+        </Button>
       </div>
 
       <div className="grid gap-2 mb-6">
