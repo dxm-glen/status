@@ -96,28 +96,7 @@ export default function Home() {
           </Card>
         </div>
       </section>
-      {/* System Status */}
-      <section className="max-w-2xl mx-auto">
-        <Card className="clean-card">
-          <CardContent className="p-6 text-center">
-            <div className="text-secondary font-medium mb-4">시스템 상태</div>
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">AI 분석 엔진</span>
-                <span className="text-foreground">AWS Bedrock</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">데이터베이스</span>
-                <span className="text-foreground">PostgreSQL</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">상태</span>
-                <span className="text-green-600 font-medium">온라인</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </section>
+
     </main>
   );
 }
