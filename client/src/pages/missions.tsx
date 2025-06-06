@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { CheckCircle, Clock, Plus, Sparkles, Trophy } from "lucide-react";
+import { CheckCircle, Clock, Plus, Sparkles, Trophy, Trash2 } from "lucide-react";
 
 interface Mission {
   id: number;
@@ -43,6 +43,7 @@ export default function Missions() {
     targetStat: "intelligence"
   });
   const [completingMissionId, setCompletingMissionId] = useState<number | null>(null);
+  const [deletingMissionId, setDeletingMissionId] = useState<number | null>(null);
   
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -140,6 +141,30 @@ export default function Missions() {
     },
   });
 
+  // Delete mission
+  const deleteMissionMutation = useMutation({
+    mutationFn: async (missionId: number) => {
+      const response = await apiRequest("DELETE", `/api/user/missions/${missionId}`);
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "미션 삭제 완료",
+        description: "미션이 삭제되었습니다.",
+      });
+      setDeletingMissionId(null);
+      queryClient.invalidateQueries({ queryKey: ["/api/user/missions"] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "미션 삭제 실패",
+        description: error.message,
+        variant: "destructive",
+      });
+      setDeletingMissionId(null);
+    },
+  });
+
   const missions: Mission[] = missionsData?.missions || [];
   const activeMissions = missions.filter(m => !m.isCompleted);
   const completedMissions = missions.filter(m => m.isCompleted);
@@ -174,9 +199,19 @@ export default function Missions() {
     setCompletingMissionId(mission.id);
   };
 
+  const handleDeleteMission = (mission: Mission) => {
+    setDeletingMissionId(mission.id);
+  };
+
   const confirmCompleteMission = () => {
     if (completingMissionId) {
       completeMissionMutation.mutate(completingMissionId);
+    }
+  };
+
+  const confirmDeleteMission = () => {
+    if (deletingMissionId) {
+      deleteMissionMutation.mutate(deletingMissionId);
     }
   };
 
@@ -366,15 +401,30 @@ export default function Missions() {
                           </div>
                         </div>
                       </div>
-                      <Button
-                        onClick={() => handleCompleteMission(mission)}
-                        variant="outline"
-                        size="sm"
-                        className="hover:bg-green-50 hover:text-green-700 hover:border-green-300"
-                      >
-                        <CheckCircle className="h-4 w-4 mr-1" />
-                        완료
-                      </Button>
+                      <div className="flex space-x-2">
+                        <Button
+                          onClick={() => handleCompleteMission(mission)}
+                          variant="outline"
+                          size="sm"
+                          className="hover:bg-green-50 hover:text-green-700 hover:border-green-300"
+                        >
+                          <CheckCircle className="h-4 w-4 mr-1" />
+                          완료
+                        </Button>
+                        <Button
+                          onClick={() => handleDeleteMission(mission)}
+                          disabled={deletingMissionId === mission.id}
+                          variant="outline"
+                          size="sm"
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-300"
+                        >
+                          {deletingMissionId === mission.id ? (
+                            <div className="animate-spin h-4 w-4 border-2 border-red-600 border-t-transparent rounded-full"></div>
+                          ) : (
+                            <Trash2 className="h-4 w-4" />
+                          )}
+                        </Button>
+                      </div>
                     </div>
                     <p className="text-muted-foreground text-sm leading-relaxed">
                       {mission.description}
@@ -458,6 +508,30 @@ export default function Missions() {
                 className="btn-primary"
               >
                 {completeMissionMutation.isPending ? "처리 중..." : "완료 확인"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Delete Confirmation Dialog */}
+        <Dialog open={deletingMissionId !== null} onOpenChange={() => setDeletingMissionId(null)}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>미션 삭제 확인</DialogTitle>
+              <DialogDescription>
+                이 미션을 삭제하시겠습니까? 삭제된 미션은 복구할 수 없습니다.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setDeletingMissionId(null)}>
+                취소
+              </Button>
+              <Button
+                onClick={confirmDeleteMission}
+                disabled={deleteMissionMutation.isPending}
+                variant="destructive"
+              >
+                {deleteMissionMutation.isPending ? "삭제 중..." : "삭제"}
               </Button>
             </DialogFooter>
           </DialogContent>

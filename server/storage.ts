@@ -33,6 +33,7 @@ export interface IStorage {
   createMission(mission: InsertMission): Promise<Mission>;
   getUserMissions(userId: number): Promise<Mission[]>;
   updateMission(id: number, updates: Partial<Mission>): Promise<Mission>;
+  deleteMission(id: number): Promise<void>;
   
   // Diary operations
   createDiaryEntry(entry: InsertDiaryEntry): Promise<DiaryEntry>;
