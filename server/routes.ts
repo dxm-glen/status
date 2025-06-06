@@ -9,6 +9,10 @@ declare module 'express-serve-static-core' {
   interface Request {
     session: {
       userId?: number;
+      questionnaireData?: {
+        inputMethod: string;
+        inputData: any;
+      };
       destroy(callback: (err?: any) => void): void;
     };
   }
@@ -42,6 +46,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         totalPoints: 0,
         level: 1,
       });
+
+      // If questionnaire data exists in session, save it to database
+      if (req.session.questionnaireData) {
+        await storage.createUserAnalysis({
+          userId: user.id,
+          inputMethod: req.session.questionnaireData.inputMethod,
+          inputData: req.session.questionnaireData.inputData,
+        });
+        // Clear the session data
+        delete req.session.questionnaireData;
+      }
 
       res.json({ user: { id: user.id, username: user.username, nickname: user.nickname } });
     } catch (error) {
@@ -94,58 +109,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Submit questionnaire
+  // Submit questionnaire (for non-authenticated users)
   app.post("/api/submit-questionnaire", async (req, res) => {
     try {
-      const userId = (req.session as any).userId;
-      if (!userId) {
-        return res.status(401).json({ message: "Not authenticated" });
-      }
-
       const { answers } = req.body;
       if (!answers || typeof answers !== 'object') {
         return res.status(400).json({ message: "Invalid questionnaire data" });
       }
 
-      // Store the questionnaire analysis
-      const analysis = await storage.createUserAnalysis({
-        userId,
+      // Store in session for later use after registration
+      req.session.questionnaireData = {
         inputMethod: 'questionnaire',
         inputData: answers,
-      });
-
-      // TODO: In next phase, integrate with Bedrock to analyze and generate stats
+      };
       
-      res.json({ analysisId: analysis.id, message: "Questionnaire submitted successfully" });
+      res.json({ message: "Questionnaire submitted successfully" });
     } catch (error) {
       console.error("Questionnaire submission error:", error);
       res.status(500).json({ message: "Failed to submit questionnaire" });
     }
   });
 
-  // Submit GPT analysis
+  // Submit GPT analysis (for non-authenticated users)
   app.post("/api/submit-gpt-analysis", async (req, res) => {
     try {
-      const userId = (req.session as any).userId;
-      if (!userId) {
-        return res.status(401).json({ message: "Not authenticated" });
-      }
-
       const { gptResponse } = req.body;
       if (!gptResponse || typeof gptResponse !== 'string') {
         return res.status(400).json({ message: "Invalid GPT response data" });
       }
 
-      // Store the GPT analysis
-      const analysis = await storage.createUserAnalysis({
-        userId,
+      // Store in session for later use after registration
+      req.session.questionnaireData = {
         inputMethod: 'gpt-paste',
         inputData: { gptResponse },
-      });
-
-      // TODO: In next phase, integrate with Bedrock to analyze and generate stats
+      };
       
-      res.json({ analysisId: analysis.id, message: "GPT analysis submitted successfully" });
+      res.json({ message: "GPT analysis submitted successfully" });
     } catch (error) {
       console.error("GPT analysis submission error:", error);
       res.status(500).json({ message: "Failed to submit GPT analysis" });
