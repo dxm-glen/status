@@ -97,7 +97,7 @@ JSON만 출력하고 다른 설명은 없이 응답해주세요.
 
   try {
     const payload = {
-      modelId: "anthropic.claude-3-5-haiku-20241022-v1:0",
+      modelId: "anthropic.claude-3-sonnet-20240229-v1:0",
       contentType: "application/json",
       accept: "application/json",
       body: JSON.stringify({
