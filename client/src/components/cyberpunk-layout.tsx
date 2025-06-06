@@ -80,6 +80,12 @@ export function CyberpunkLayout({ children }: CyberpunkLayoutProps) {
                   <Link href="/missions">
                     <Button variant="outline" className="text-sm">퀘스트</Button>
                   </Link>
+                  <Link href="/achievements">
+                    <Button variant="outline" className="text-sm">업적</Button>
+                  </Link>
+                  <Link href="/profile">
+                    <Button variant="outline" className="text-sm">프로필</Button>
+                  </Link>
                 </div>
                 <Button 
                   onClick={handleLogout}
