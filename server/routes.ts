@@ -1,8 +1,18 @@
-import type { Express } from "express";
+import type { Express, Request } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertUserSchema, insertUserAnalysisSchema } from "@shared/schema";
 import { z } from "zod";
+
+// Extend Express Request type to include session
+declare module 'express-serve-static-core' {
+  interface Request {
+    session: {
+      userId?: number;
+      destroy(callback: (err?: any) => void): void;
+    };
+  }
+}
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // User registration
