@@ -111,86 +111,113 @@ export default function Registration() {
       <div className="max-w-2xl mx-auto">
         <Card className="cyber-card">
           <CardContent className="p-8">
-            <h2 className="text-2xl font-bold text-primary text-center mb-8 uppercase">
-              &gt; 계정 생성
-            </h2>
-            
-            {method && (
-              <div className="bg-background/50 p-4 mb-6 border border-accent/30 text-center">
-                <p className="text-accent text-sm">
-                  {method === "questionnaire" 
-                    ? "✅ 질문지 분석이 완료되었습니다."
-                    : "✅ GPT 분석 결과가 저장되었습니다."
-                  }
-                </p>
-                <p className="text-secondary text-xs mt-1">
-                  계정을 생성하여 분석을 시작하세요.
-                </p>
-              </div>
-            )}
-            
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div>
-                <Label className="block text-secondary font-bold mb-2 uppercase text-sm">
-                  사용자 ID
-                </Label>
-                <Input 
-                  type="text"
-                  value={formData.username}
-                  onChange={(e) => handleInputChange("username", e.target.value)}
-                  className="terminal-input"
-                  placeholder="고유한 ID를 입력하세요"
-                />
-              </div>
-
-              <div>
-                <Label className="block text-secondary font-bold mb-2 uppercase text-sm">
-                  닉네임
-                </Label>
-                <Input 
-                  type="text"
-                  value={formData.nickname}
-                  onChange={(e) => handleInputChange("nickname", e.target.value)}
-                  className="terminal-input"
-                  placeholder="게임에서 사용할 닉네임"
-                />
-              </div>
-
-              <div>
-                <Label className="block text-secondary font-bold mb-2 uppercase text-sm">
-                  4자리 숫자 비밀번호
-                </Label>
-                <Input 
-                  type="password"
-                  value={formData.password}
-                  onChange={(e) => handleInputChange("password", e.target.value)}
-                  className="terminal-input text-center text-2xl tracking-widest"
-                  placeholder="••••"
-                  maxLength={4}
-                  pattern="[0-9]{4}"
-                />
-                <p className="text-xs text-accent mt-1">
-                  &gt; 숫자 4자리로 입력해주세요 (예: 1234)
-                </p>
-              </div>
-
-              <Button 
-                type="submit" 
-                className="btn-primary w-full py-4 text-lg"
-                disabled={registerMutation.isPending}
-              >
-                {registerMutation.isPending ? (
-                  <div className="flex items-center justify-center space-x-3">
-                    <div className="flex space-x-1">
-                      <div className="h-2 w-2 bg-white rounded-full animate-bounce" style={{animationDelay: '0ms'}}></div>
-                      <div className="h-2 w-2 bg-white rounded-full animate-bounce" style={{animationDelay: '150ms'}}></div>
-                      <div className="h-2 w-2 bg-white rounded-full animate-bounce" style={{animationDelay: '300ms'}}></div>
+{registerMutation.isPending ? (
+              // AI 분석 처리 중 화면
+              <div className="text-center py-12">
+                <h2 className="text-2xl font-bold text-primary mb-8 uppercase">
+                  &gt; AI 분석 진행 중
+                </h2>
+                
+                <div className="space-y-6">
+                  <div className="bg-primary/5 border border-primary/20 rounded-lg p-6">
+                    <div className="flex items-center justify-center space-x-3 mb-4">
+                      <div className="flex space-x-1">
+                        <div className="h-3 w-3 bg-primary rounded-full animate-bounce" style={{animationDelay: '0ms'}}></div>
+                        <div className="h-3 w-3 bg-primary rounded-full animate-bounce" style={{animationDelay: '150ms'}}></div>
+                        <div className="h-3 w-3 bg-primary rounded-full animate-bounce" style={{animationDelay: '300ms'}}></div>
+                      </div>
                     </div>
-                    <span>당신에 대한 분석을 정리하는 중...</span>
+                    
+                    <p className="text-primary font-medium text-lg mb-2">
+                      당신에 대한 분석을 정리하는 중...
+                    </p>
+                    
+                    <p className="text-muted-foreground text-sm leading-relaxed">
+                      AI가 당신의 답변을 바탕으로 개인화된 스탯을 계산하고 있습니다.<br/>
+                      잠시만 기다려주세요.
+                    </p>
                   </div>
-                ) : "계정 생성 및 분석 시작"}
-              </Button>
-            </form>
+                  
+                  <div className="text-accent text-xs">
+                    &gt; 처리 시간: 약 30-60초
+                  </div>
+                </div>
+              </div>
+            ) : (
+              // 일반 계정 생성 폼
+              <>
+                <h2 className="text-2xl font-bold text-primary text-center mb-8 uppercase">
+                  &gt; 계정 생성
+                </h2>
+                
+                {method && (
+                  <div className="bg-background/50 p-4 mb-6 border border-accent/30 text-center">
+                    <p className="text-accent text-sm">
+                      {method === "questionnaire" 
+                        ? "✅ 질문지 분석이 완료되었습니다."
+                        : "✅ GPT 분석 결과가 저장되었습니다."
+                      }
+                    </p>
+                    <p className="text-secondary text-xs mt-1">
+                      계정을 생성하여 분석을 시작하세요.
+                    </p>
+                  </div>
+                )}
+                
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  <div>
+                    <Label className="block text-secondary font-bold mb-2 uppercase text-sm">
+                      사용자 ID
+                    </Label>
+                    <Input 
+                      type="text"
+                      value={formData.username}
+                      onChange={(e) => handleInputChange("username", e.target.value)}
+                      className="terminal-input"
+                      placeholder="고유한 ID를 입력하세요"
+                    />
+                  </div>
+
+                  <div>
+                    <Label className="block text-secondary font-bold mb-2 uppercase text-sm">
+                      닉네임
+                    </Label>
+                    <Input 
+                      type="text"
+                      value={formData.nickname}
+                      onChange={(e) => handleInputChange("nickname", e.target.value)}
+                      className="terminal-input"
+                      placeholder="게임에서 사용할 닉네임"
+                    />
+                  </div>
+
+                  <div>
+                    <Label className="block text-secondary font-bold mb-2 uppercase text-sm">
+                      4자리 숫자 비밀번호
+                    </Label>
+                    <Input 
+                      type="password"
+                      value={formData.password}
+                      onChange={(e) => handleInputChange("password", e.target.value)}
+                      className="terminal-input text-center text-2xl tracking-widest"
+                      placeholder="••••"
+                      maxLength={4}
+                      pattern="[0-9]{4}"
+                    />
+                    <p className="text-xs text-accent mt-1">
+                      &gt; 숫자 4자리로 입력해주세요 (예: 1234)
+                    </p>
+                  </div>
+
+                  <Button 
+                    type="submit" 
+                    className="btn-primary w-full py-4 text-lg"
+                  >
+                    계정 생성 및 분석 시작
+                  </Button>
+                </form>
+              </>
+            )}
           </CardContent>
         </Card>
       </div>
