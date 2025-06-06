@@ -433,12 +433,7 @@ export default function Missions() {
                 <Card key={mission.id} className="clean-card hover:shadow-lg transition-all">
                   <CardContent className="p-6">
                     <div className="flex items-start justify-between mb-4">
-                      <div className="flex items-center space-x-3">
-                        <div className="flex space-x-1">
-                          {mission.targetStats.map((stat, index) => (
-                            <span key={index} className="text-xl">{getStatIcon(stat)}</span>
-                          ))}
-                        </div>
+                      <div className="space-y-3 flex-1">
                         <div>
                           <h3 className="font-semibold text-foreground">{mission.title}</h3>
                           <div className="flex items-center space-x-2 mt-1">
@@ -456,6 +451,15 @@ export default function Missions() {
                               </Badge>
                             )}
                           </div>
+                        </div>
+                        {/* Target Stats Display */}
+                        <div className="flex flex-wrap gap-2">
+                          <span className="text-sm text-muted-foreground">연관 스탯:</span>
+                          {mission.targetStats.map((stat, index) => (
+                            <Badge key={index} variant="outline" className="text-xs bg-primary/10 text-primary border-primary/20">
+                              {getStatIcon(stat)} {getStatDisplayName(stat)}
+                            </Badge>
+                          ))}
                         </div>
                       </div>
                       <div className="flex space-x-2">
@@ -505,12 +509,7 @@ export default function Missions() {
                 <Card key={mission.id} className="clean-card opacity-75">
                   <CardContent className="p-6">
                     <div className="flex items-start justify-between mb-4">
-                      <div className="flex items-center space-x-3">
-                        <div className="flex space-x-1">
-                          {mission.targetStats.map((stat, index) => (
-                            <span key={index} className="text-xl grayscale">{getStatIcon(stat)}</span>
-                          ))}
-                        </div>
+                      <div className="space-y-3 flex-1">
                         <div>
                           <h3 className="font-semibold text-foreground line-through">{mission.title}</h3>
                           <div className="flex items-center space-x-2 mt-1">
@@ -521,6 +520,15 @@ export default function Missions() {
                               {new Date(mission.completedAt!).toLocaleDateString()}
                             </span>
                           </div>
+                        </div>
+                        {/* Target Stats Display */}
+                        <div className="flex flex-wrap gap-2">
+                          <span className="text-sm text-muted-foreground">연관 스탯:</span>
+                          {mission.targetStats.map((stat, index) => (
+                            <Badge key={index} variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200 opacity-75">
+                              {getStatIcon(stat)} {getStatDisplayName(stat)}
+                            </Badge>
+                          ))}
                         </div>
                       </div>
                       <CheckCircle className="h-5 w-5 text-green-500" />
