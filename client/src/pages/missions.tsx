@@ -123,9 +123,18 @@ export default function Missions() {
         adaptability: "🔄 적응력"
       };
       
+      console.log("Mission completion data:", data);
+      console.log("Stat increases:", data.statIncrease);
+      
       const increases = Object.entries(data.statIncrease || {})
-        .map(([stat, points]) => `${statNames[stat as keyof typeof statNames] || stat} +${points}`)
+        .map(([stat, points]) => {
+          const koreanName = statNames[stat as keyof typeof statNames] || stat;
+          console.log(`Mapping ${stat} to ${koreanName} +${points}`);
+          return `${koreanName} +${points}`;
+        })
         .join(", ");
+      
+      console.log("Final increases string:", increases);
       
       toast({
         title: "퀘스트 완료!",
