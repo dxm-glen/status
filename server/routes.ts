@@ -296,6 +296,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get recent stat events for dashboard
+  app.get("/api/user/stat-events", async (req, res) => {
+    const userId = req.session.userId;
+    if (!userId) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    try {
+      const { stat } = req.query;
+      const events = await storage.getRecentStatEvents(userId, stat as string, 3);
+      res.json({ events });
+    } catch (error) {
+      console.error("Get stat events error:", error);
+      res.status(500).json({ message: "Failed to get stat events" });
+    }
+  });
+
   // Generate AI missions for user
   app.post("/api/user/generate-missions", async (req, res) => {
     const userId = req.session.userId;
@@ -454,6 +471,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
           totalPoints,
           level
         });
+
+        // Create stat events for tracking recent changes
+        try {
+          for (const [stat, increase] of Object.entries(statIncreases)) {
+            await storage.createStatEvent({
+              userId,
+              statName: stat,
+              eventType: 'mission_complete',
+              eventDescription: mission.title,
+              statChange: increase,
+              sourceId: missionId,
+            });
+          }
+        } catch (eventError) {
+          console.error("Failed to create stat events:", eventError);
+          // Continue even if stat events fail
+        }
       }
 
       res.json({ 

@@ -2,8 +2,10 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { Clock, TrendingUp } from "lucide-react";
 
 export default function Dashboard() {
   const [, navigate] = useLocation();
@@ -23,6 +25,12 @@ export default function Dashboard() {
       // Auto-refresh every 3 seconds if analysis is pending
       return data?.analysisStatus === 'pending' ? 3000 : false;
     }
+  });
+
+  // Fetch recent missions to show stat-affecting events
+  const { data: missionsData } = useQuery({
+    queryKey: ["/api/user/missions"],
+    enabled: !!user?.user,
   });
 
   const retryMutation = useMutation({
