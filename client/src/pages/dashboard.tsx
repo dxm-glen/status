@@ -227,6 +227,10 @@ export default function Dashboard() {
                       <span className="text-foreground font-semibold text-lg">{stat.value}</span>
                     </div>
                     
+                    <div className="text-muted-foreground text-xs leading-relaxed group-hover:text-foreground transition-colors mb-3">
+                      {stat.description}
+                    </div>
+                    
                     <div className="progress-container h-2 mb-3">
                       <div 
                         className="progress-bar h-full" 
@@ -262,10 +266,6 @@ export default function Dashboard() {
                         </div>
                       );
                     })()}
-                    
-                    <div className="text-muted-foreground text-xs leading-relaxed group-hover:text-foreground transition-colors">
-                      {stat.description}
-                    </div>
                   </div>
                 );
               })}
