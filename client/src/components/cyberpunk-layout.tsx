@@ -73,9 +73,7 @@ export function CyberpunkLayout({ children }: CyberpunkLayoutProps) {
                     </Button>
                   </Link>
                   <Link href="/missions">
-                    <Button variant="outline" className="text-sm">
-                      미션
-                    </Button>
+                    <Button variant="outline" className="text-sm">퀘스트</Button>
                   </Link>
                 </div>
                 <Button 
@@ -96,10 +94,8 @@ export function CyberpunkLayout({ children }: CyberpunkLayoutProps) {
           </div>
         </div>
       </header>
-
       {/* Main Content */}
       {children}
-
       {/* Footer */}
       <footer className="border-t border-border bg-card/30 mt-16">
         <div className="container mx-auto px-4 py-8 text-center">
