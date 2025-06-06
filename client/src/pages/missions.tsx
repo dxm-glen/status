@@ -295,12 +295,12 @@ export default function Missions() {
             {generateMissionsMutation.isPending ? (
               <div className="flex items-center space-x-2">
                 <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
-                <span>AI 미션 생성 중...</span>
+                <span>AI 퀘스트 생성 중...</span>
               </div>
             ) : (
               <div className="flex items-center space-x-2">
                 <Sparkles className="h-4 w-4" />
-                <span>{isAtLimit ? "미션 한도 초과" : "AI 미션 생성"}</span>
+                <span>{isAtLimit ? "퀘스트 한도 초과" : "AI 퀘스트 생성"}</span>
               </div>
             )}
           </Button>
@@ -313,31 +313,31 @@ export default function Missions() {
                 disabled={isAtLimit}
               >
                 <Plus className="h-4 w-4" />
-                <span>{isAtLimit ? "미션 한도 초과" : "직접 추가"}</span>
+                <span>{isAtLimit ? "퀘스트 한도 초과" : "직접 추가"}</span>
               </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-md">
               <DialogHeader>
-                <DialogTitle>새 미션 추가</DialogTitle>
+                <DialogTitle>새 퀘스트 추가</DialogTitle>
                 <DialogDescription>
-                  원하는 미션을 직접 만들어보세요
+                  원하는 퀘스트를 직접 만들어보세요
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-4">
                 <div>
-                  <Label>미션 제목</Label>
+                  <Label>퀘스트 제목</Label>
                   <Input
                     value={newMission.title}
                     onChange={(e) => setNewMission(prev => ({ ...prev, title: e.target.value }))}
-                    placeholder="미션 제목을 입력하세요"
+                    placeholder="퀘스트 제목을 입력하세요"
                   />
                 </div>
                 <div>
-                  <Label>미션 설명</Label>
+                  <Label>퀘스트 설명</Label>
                   <Textarea
                     value={newMission.description}
                     onChange={(e) => setNewMission(prev => ({ ...prev, description: e.target.value }))}
-                    placeholder="구체적인 미션 내용을 입력하세요"
+                    placeholder="구체적인 퀘스트 내용을 입력하세요"
                     rows={3}
                   />
                 </div>
@@ -408,7 +408,7 @@ export default function Missions() {
                   disabled={addMissionMutation.isPending || !newMission.title || !newMission.description || newMission.targetStats.length === 0}
                   className="btn-primary"
                 >
-                  {addMissionMutation.isPending ? "추가 중..." : "미션 추가"}
+                  {addMissionMutation.isPending ? "추가 중..." : "퀘스트 추가"}
                 </Button>
               </DialogFooter>
             </DialogContent>
