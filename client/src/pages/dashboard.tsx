@@ -6,18 +6,24 @@ import { Button } from "@/components/ui/button";
 export default function Dashboard() {
   const [, navigate] = useLocation();
   
-  const { data: user, isLoading } = useQuery({
+  const { data: user, isLoading: userLoading } = useQuery({
     queryKey: ["/api/user"],
     retry: false,
   });
 
+  const { data: statsData, isLoading: statsLoading } = useQuery({
+    queryKey: ["/api/user/stats"],
+    enabled: !!user?.user,
+    retry: false,
+  });
+
   // If not logged in, redirect to home
-  if (!isLoading && !user?.user) {
+  if (!userLoading && !user?.user) {
     navigate("/");
     return null;
   }
 
-  if (isLoading) {
+  if (userLoading || statsLoading) {
     return (
       <main className="container mx-auto px-4 py-8">
         <div className="text-center">
@@ -29,11 +35,9 @@ export default function Dashboard() {
     );
   }
 
-  // Placeholder stats for Phase 1 - will be replaced with actual stats in Phase 2
-  const mockStats = {
+  const stats = statsData?.stats || {
     level: 1,
     totalPoints: 0,
-    progressPercentage: 0,
     intelligence: 0,
     creativity: 0,
     social: 0,
@@ -42,6 +46,8 @@ export default function Dashboard() {
     focus: 0,
     adaptability: 0,
   };
+
+  const progressPercentage = Math.min(100, (stats.totalPoints / 1000) * 100);
 
   return (
     <main className="container mx-auto px-4 py-8">
@@ -56,46 +62,60 @@ export default function Dashboard() {
             <div className="text-center mb-8">
               <div className="inline-block bg-background border-2 border-accent p-4">
                 <div className="text-accent text-sm uppercase">현재 레벨</div>
-                <div className="text-3xl font-bold text-foreground">Lv.{mockStats.level}</div>
-                <div className="text-secondary text-sm">성장 준비자</div>
+                <div className="text-3xl font-bold text-foreground">Lv.{stats.level}</div>
+                <div className="text-secondary text-sm">
+                  {stats.totalPoints > 0 ? "성장하는 캐릭터" : "성장 준비자"}
+                </div>
               </div>
             </div>
 
-            {/* Phase 1 Notice */}
+            {/* AI Analysis Status */}
             <div className="bg-card/30 border border-primary p-6 mb-8 text-center">
               <h3 className="text-primary font-bold mb-2 uppercase">
-                🚀 Phase 1 완료!
+                {stats.totalPoints > 0 ? "AI 분석 완료!" : "Phase 2 진행 중"}
               </h3>
               <p className="text-foreground text-sm mb-4">
-                계정이 생성되고 기초 데이터가 저장되었습니다.<br />
-                다음 단계에서 AI 분석을 통해 당신의 스탯이 생성됩니다.
+                {stats.totalPoints > 0 
+                  ? "AWS Bedrock AI가 당신의 입력을 분석하여 개인화된 스탯을 생성했습니다."
+                  : "계정이 생성되었습니다. AI 분석을 통해 스탯을 생성하는 중입니다."
+                }
               </p>
               <div className="text-accent text-xs">
-                &gt; 현재 상태: 분석 대기 중<br />
-                &gt; 다음 단계: Bedrock AI 분석 및 스탯 생성
+                {stats.totalPoints > 0 ? (
+                  <>
+                    &gt; 분석 완료: Bedrock Claude 3 Sonnet<br />
+                    &gt; 총 성장 점수: {stats.totalPoints}점<br />
+                    &gt; 다음 단계: 미션 시스템 개발 예정
+                  </>
+                ) : (
+                  <>
+                    &gt; 현재 상태: 분석 대기 중<br />
+                    &gt; 다음 단계: Bedrock AI 분석 및 스탯 생성
+                  </>
+                )}
               </div>
             </div>
 
-            {/* Placeholder Stats Display */}
+            {/* Stats Display */}
             <div className="mb-8">
               <div className="flex justify-between text-sm mb-2">
                 <span className="text-secondary uppercase">총 성장 점수</span>
-                <span className="text-accent">{mockStats.totalPoints} / 1000</span>
+                <span className="text-accent">{stats.totalPoints} / 1000</span>
               </div>
               <div className="progress-container h-4">
-                <div className="stat-bar h-full" style={{ width: `${mockStats.progressPercentage}%` }}></div>
+                <div className="stat-bar h-full" style={{ width: `${progressPercentage}%` }}></div>
               </div>
             </div>
 
             {/* 7 Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
               {[
-                { name: "🧠 지능 (INT)", value: mockStats.intelligence, color: "accent" },
-                { name: "🎨 창의성 (CRT)", value: mockStats.creativity, color: "primary" },
-                { name: "👥 사회성 (SOC)", value: mockStats.social, color: "secondary" },
-                { name: "💪 체력 (PHY)", value: mockStats.physical, color: "accent" },
-                { name: "❤️ 감성 (EMO)", value: mockStats.emotional, color: "primary" },
-                { name: "🎯 집중력 (FOC)", value: mockStats.focus, color: "secondary" },
+                { name: "🧠 지능 (INT)", value: stats.intelligence, color: "accent" },
+                { name: "🎨 창의성 (CRT)", value: stats.creativity, color: "primary" },
+                { name: "👥 사회성 (SOC)", value: stats.social, color: "secondary" },
+                { name: "💪 체력 (PHY)", value: stats.physical, color: "accent" },
+                { name: "❤️ 감성 (EMO)", value: stats.emotional, color: "primary" },
+                { name: "🎯 집중력 (FOC)", value: stats.focus, color: "secondary" },
               ].map((stat, index) => (
                 <div key={index} className={`bg-background/50 p-4 border border-${stat.color}`}>
                   <div className="flex justify-between mb-2">
@@ -119,12 +139,12 @@ export default function Dashboard() {
                   <span className="text-accent uppercase text-sm font-bold">
                     🔄 적응력 (ADP)
                   </span>
-                  <span className="text-foreground">{mockStats.adaptability}</span>
+                  <span className="text-foreground">{stats.adaptability}</span>
                 </div>
                 <div className="progress-container h-2">
                   <div 
                     className="bg-accent h-full" 
-                    style={{ width: `${mockStats.adaptability}%` }}
+                    style={{ width: `${stats.adaptability}%` }}
                   ></div>
                 </div>
               </div>
