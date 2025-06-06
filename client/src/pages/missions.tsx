@@ -18,7 +18,7 @@ interface Mission {
   description: string;
   difficulty: 'easy' | 'medium' | 'hard';
   estimatedTime: string;
-  targetStats: string[];
+  targetStat: string;
   isCompleted: boolean;
   isAiGenerated: boolean;
   createdAt: string;
@@ -30,7 +30,7 @@ interface NewMission {
   description: string;
   difficulty: 'easy' | 'medium' | 'hard';
   estimatedTime: string;
-  targetStats: string[];
+  targetStat: string;
 }
 
 export default function Missions() {
@@ -40,7 +40,7 @@ export default function Missions() {
     description: "",
     difficulty: "easy",
     estimatedTime: "",
-    targetStats: ["intelligence"]
+    targetStat: "intelligence"
   });
   const [completingMissionId, setCompletingMissionId] = useState<number | null>(null);
   
@@ -92,7 +92,7 @@ export default function Missions() {
         description: "",
         difficulty: "easy",
         estimatedTime: "",
-        targetStats: ["intelligence"]
+        targetStat: "intelligence"
       });
       queryClient.invalidateQueries({ queryKey: ["/api/user/missions"] });
     },
@@ -285,8 +285,8 @@ export default function Missions() {
                 <div>
                   <Label>목표 스탯</Label>
                   <Select
-                    value={newMission.targetStats[0]}
-                    onValueChange={(value) => setNewMission(prev => ({ ...prev, targetStats: [value] }))}
+                    value={newMission.targetStat}
+                    onValueChange={(value) => setNewMission(prev => ({ ...prev, targetStat: value }))}
                   >
                     <SelectTrigger>
                       <SelectValue />
@@ -326,7 +326,7 @@ export default function Missions() {
                   <CardContent className="p-6">
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-center space-x-3">
-                        <span className="text-2xl">{getStatIcon(mission.targetStats[0])}</span>
+                        <span className="text-2xl">{getStatIcon(mission.targetStat)}</span>
                         <div>
                           <h3 className="font-semibold text-foreground">{mission.title}</h3>
                           <div className="flex items-center space-x-2 mt-1">
@@ -379,7 +379,7 @@ export default function Missions() {
                   <CardContent className="p-6">
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-center space-x-3">
-                        <span className="text-2xl grayscale">{getStatIcon(mission.targetStats[0])}</span>
+                        <span className="text-2xl grayscale">{getStatIcon(mission.targetStat)}</span>
                         <div>
                           <h3 className="font-semibold text-foreground line-through">{mission.title}</h3>
                           <div className="flex items-center space-x-2 mt-1">

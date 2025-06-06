@@ -322,7 +322,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           description: mission.description,
           difficulty: mission.difficulty,
           estimatedTime: mission.estimatedTime,
-          targetStats: mission.targetStats,
+          targetStat: mission.targetStat,
           isAiGenerated: true
         });
         savedMissions.push(savedMission);
@@ -346,9 +346,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
 
     try {
-      const { title, description, difficulty, estimatedTime, targetStats } = req.body;
+      const { title, description, difficulty, estimatedTime, targetStat } = req.body;
       
-      if (!title || !description || !difficulty || !estimatedTime || !targetStats) {
+      if (!title || !description || !difficulty || !estimatedTime || !targetStat) {
         return res.status(400).json({ message: "Missing required fields" });
       }
 
@@ -358,7 +358,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         description,
         difficulty,
         estimatedTime,
-        targetStats,
+        targetStat,
         isAiGenerated: false
       });
 
@@ -395,19 +395,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Update user stats
       const currentStats = await storage.getUserStats(userId);
-      let statIncreases: any = {};
-      
       if (currentStats) {
-        const targetStats = Array.isArray(mission.targetStats) ? mission.targetStats : [mission.targetStats];
-        const updates: any = {};
-        
-        // Apply increase to each target stat
-        targetStats.forEach((stat: string) => {
-          if (stat in currentStats) {
-            updates[stat] = Math.min(99, (currentStats as any)[stat] + statIncrease);
-            statIncreases[stat] = statIncrease;
-          }
-        });
+        const updates = {
+          [mission.targetStat]: Math.min(99, currentStats[mission.targetStat as keyof typeof currentStats] + statIncrease)
+        };
         
         // Recalculate total points and level
         const newStats = { ...currentStats, ...updates };
@@ -425,7 +416,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ 
         message: "Mission completed successfully",
         mission,
-        statIncreases
+        statIncrease: { [mission.targetStat]: statIncrease }
       });
     } catch (error) {
       console.error("Complete mission error:", error);

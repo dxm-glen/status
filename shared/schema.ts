@@ -44,7 +44,7 @@ export const missions = pgTable("missions", {
   description: text("description").notNull(),
   difficulty: text("difficulty").notNull(), // 'easy', 'medium', 'hard'
   estimatedTime: text("estimated_time").notNull(),
-  targetStats: json("target_stats").notNull(), // array of stats this mission improves
+  targetStat: text("target_stat").notNull(), // which stat this mission improves
   isCompleted: boolean("is_completed").notNull().default(false),
   isAiGenerated: boolean("is_ai_generated").notNull().default(false),
   createdAt: timestamp("created_at").defaultNow().notNull(),
