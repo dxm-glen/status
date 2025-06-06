@@ -151,7 +151,7 @@ export default function Dashboard() {
                       {/* 각 스탯 설정 이유 */}
                       {statsData.statExplanations && (
                         <div className="space-y-2">
-                          <div className="text-primary font-medium text-xs mb-2">스탯 설정 근거:</div>
+                          <div className="text-primary font-medium text-xs mb-2">초기 캐릭터 스탯 설정 근거:</div>
                           <div className="space-y-1 text-xs">
                             {Object.entries(statsData.statExplanations).map(([key, explanation]) => (
                               <div key={key} className="text-muted-foreground leading-relaxed">
