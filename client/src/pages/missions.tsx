@@ -191,11 +191,13 @@ export default function Missions() {
   // Get current user level
   const currentLevel = statsData?.stats?.level || 1;
   
-  // Filter completed missions to show only current level missions (max 3)
-  const currentLevelCompletedMissions = allCompletedMissions
+  // Get all completed missions for current level (no limit)
+  const allCurrentLevelCompletedMissions = allCompletedMissions
     .filter(m => (m as any).completedAtLevel === currentLevel)
-    .sort((a, b) => new Date(b.completedAt!).getTime() - new Date(a.completedAt!).getTime())
-    .slice(0, 3);
+    .sort((a, b) => new Date(b.completedAt!).getTime() - new Date(a.completedAt!).getTime());
+
+  // Show only recent 3 for display, but count all for header
+  const currentLevelCompletedMissions = allCurrentLevelCompletedMissions.slice(0, 3);
   
   const maxMissions = 10;
   const currentActiveCount = activeMissions.length;
@@ -514,10 +516,22 @@ export default function Missions() {
         {/* Completed Missions - Current Level Only */}
         {(currentLevelCompletedMissions.length > 0 || allCompletedMissions.length > 0) && (
           <div>
-            <h2 className="text-xl font-semibold mb-4 text-foreground flex items-center">
-              <Trophy className="h-5 w-5 mr-2 text-yellow-500" />
-              레벨 {currentLevel}에서 완료된 퀘스트 ({currentLevelCompletedMissions.length})
-            </h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold text-foreground flex items-center">
+                <Trophy className="h-5 w-5 mr-2 text-yellow-500" />
+                레벨 {currentLevel}에서 완료된 퀘스트 ({allCurrentLevelCompletedMissions.length})
+              </h2>
+              {allCurrentLevelCompletedMissions.length > 0 && (
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => navigate("/achievements")}
+                  className="text-xs px-3 py-1"
+                >
+                  전체 보기
+                </Button>
+              )}
+            </div>
             <div className="grid gap-4">
               {currentLevelCompletedMissions.map((mission) => (
                 <Card key={mission.id} className="clean-card opacity-75">
