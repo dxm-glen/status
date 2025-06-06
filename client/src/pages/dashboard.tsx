@@ -88,6 +88,26 @@ export default function Dashboard() {
   const hasAnalysisData = statsData?.hasAnalysisData || false;
   const progressPercentage = Math.min(100, (stats.totalPoints / 1000) * 100);
 
+  // Helper function to get recent events for a specific stat
+  const getRecentEventsForStat = (statName: string) => {
+    if (!missionsData?.missions) return [];
+    
+    const completedMissions = missionsData.missions
+      .filter((mission: any) => mission.isCompleted && mission.completedAt)
+      .filter((mission: any) => {
+        const flatStats = Array.isArray(mission.targetStats[0]) ? mission.targetStats[0] : mission.targetStats;
+        return flatStats.includes(statName);
+      })
+      .sort((a: any, b: any) => new Date(b.completedAt).getTime() - new Date(a.completedAt).getTime())
+      .slice(0, 3);
+    
+    return completedMissions.map((mission: any) => ({
+      description: mission.title,
+      date: mission.completedAt,
+      type: 'mission_complete'
+    }));
+  };
+
   return (
     <main className="container mx-auto px-4 py-8">
       <div className="max-w-4xl mx-auto">
@@ -181,6 +201,7 @@ export default function Dashboard() {
                 { name: "💪 체력", key: "physical", value: stats.physical, color: "primary", description: "신체적 건강, 지구력, 활동성과 에너지 레벨을 나타냅니다." },
                 { name: "❤️ 감성", key: "emotional", value: stats.emotional, color: "accent", description: "감정 이해력, 공감 능력, 정서적 안정성을 나타냅니다." },
                 { name: "🎯 집중력", key: "focus", value: stats.focus, color: "secondary", description: "주의력, 집중 지속력, 목표 달성을 위한 몰입 능력을 나타냅니다." },
+                { name: "🔄 적응력", key: "adaptability", value: stats.adaptability, color: "primary", description: "변화에 대한 유연성, 새로운 환경 적응력, 문제 해결 유연성을 나타냅니다." },
               ].map((stat, index) => {
                 return (
                   <div key={index} className="clean-card p-4 cursor-pointer hover:shadow-lg transition-all group">
@@ -197,6 +218,35 @@ export default function Dashboard() {
                         style={{ width: `${stat.value}%` }}
                       ></div>
                     </div>
+
+                    {/* Recent Events for this stat */}
+                    {(() => {
+                      const recentEvents = getRecentEventsForStat(stat.key);
+                      return recentEvents.length > 0 && (
+                        <div className="mt-3 space-y-1">
+                          <div className="flex items-center gap-1 text-xs text-muted-foreground mb-2">
+                            <Clock className="h-3 w-3" />
+                            <span>최근 활동</span>
+                          </div>
+                          {recentEvents.map((event, eventIndex) => (
+                            <div key={eventIndex} className="flex items-center gap-2 text-xs">
+                              <Badge variant="outline" className="text-xs py-0 px-2 h-5">
+                                완료
+                              </Badge>
+                              <span className="text-muted-foreground truncate flex-1">
+                                {event.description}
+                              </span>
+                              <span className="text-muted-foreground text-xs">
+                                {new Date(event.date).toLocaleDateString('ko-KR', { 
+                                  month: 'short', 
+                                  day: 'numeric' 
+                                })}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      );
+                    })()}
                     
                     <div className="text-muted-foreground text-xs leading-relaxed group-hover:text-foreground transition-colors">
                       {stat.description}
