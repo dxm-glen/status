@@ -379,10 +379,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      const { title, description, difficulty, estimatedTime, targetStat } = req.body;
+      const { title, description, difficulty, estimatedTime, targetStats } = req.body;
       
-      if (!title || !description || !difficulty || !estimatedTime || !targetStat) {
-        return res.status(400).json({ message: "Missing required fields" });
+      if (!title || !description || !difficulty || !estimatedTime || !targetStats || !Array.isArray(targetStats) || targetStats.length === 0 || targetStats.length > 3) {
+        return res.status(400).json({ message: "Missing required fields or invalid targetStats (must be 1-3 stats)" });
       }
 
       const mission = await storage.createMission({
@@ -391,7 +391,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         description,
         difficulty,
         estimatedTime,
-        targetStat,
+        targetStats,
         isAiGenerated: false
       });
 

@@ -241,11 +241,12 @@ export async function generateMissions(userId: number, userStats: UserStats, cou
 
 미션 생성 가이드라인:
 1. 총 ${count}개의 미션만 생성
-2. 7개 스탯 중에서 랜덤하게 ${count}개 스탯을 선택하여 각각 1개씩 미션 생성
+2. 각 미션마다 1-3개의 스탯을 선택하여 targetStats 배열로 설정
 3. 사용자의 현재 스탯이 낮으면 기초적인 미션, 높으면 도전적인 미션
 4. 실제로 수행 가능한 구체적인 활동
 5. 난이도는 현재 스탯 수준에 따라 조정 (1-30: easy, 31-70: medium, 71-100: hard)
 6. 예상 시간은 현실적으로 설정
+7. targetStats는 연관성 있는 스탯들의 조합으로 구성 (예: ["intelligence", "focus"], ["social", "emotional"])
 
 JSON만 출력하고 다른 설명은 없이 응답해주세요.`;
 
