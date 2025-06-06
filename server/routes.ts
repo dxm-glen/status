@@ -433,9 +433,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     try {
       const missionId = parseInt(req.params.id);
+      
+      // Get current user stats to record completion level
+      const currentStats = await storage.getUserStats(userId);
+      const completionLevel = currentStats ? currentStats.level : 1;
+      
       const mission = await storage.updateMission(missionId, {
         isCompleted: true,
-        completedAt: new Date()
+        completedAt: new Date(),
+        completedAtLevel: completionLevel
       });
 
       // Calculate stat increase based on difficulty
@@ -446,10 +452,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }[mission.difficulty] || 1;
 
       // Update user stats - support multiple stats
-      const currentStats = await storage.getUserStats(userId);
+      const userStats = await storage.getUserStats(userId);
       const statIncreases: Record<string, number> = {};
       
-      if (currentStats) {
+      if (userStats) {
         const updates: Record<string, number> = {};
         
         // Generate random stat increases for each target stat (1 to statIncrease points based on difficulty)
@@ -457,14 +463,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const flatStats = Array.isArray(mission.targetStats[0]) ? mission.targetStats[0] : mission.targetStats;
         
         for (const stat of flatStats) {
-          const currentValue = currentStats[stat as keyof typeof currentStats] as number;
+          const currentValue = userStats[stat as keyof typeof userStats] as number;
           const randomIncrease = Math.floor(Math.random() * statIncrease) + 1; // 1 to statIncrease points
           updates[stat] = Math.min(99, currentValue + randomIncrease);
           statIncreases[stat] = randomIncrease;
         }
         
         // Update stats without auto-leveling (only calculate total points)
-        await storage.updateUserStats(userId, updates);
+      await storage.updateUserStats(userId, updates);
 
         // Create stat events for tracking recent changes
         try {
