@@ -23,7 +23,6 @@ export const userStats = pgTable("user_stats", {
   adaptability: integer("adaptability").notNull().default(0),
   totalPoints: integer("total_points").notNull().default(0),
   level: integer("level").notNull().default(1),
-  levelUpReady: boolean("level_up_ready").notNull().default(false),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 

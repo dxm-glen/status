@@ -171,17 +171,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const analysisSummary = latestAnalysis?.summary || null;
       const statExplanations = latestAnalysis?.statExplanations || null;
 
-      // Get level progress information
-      const { calculateLevelProgress } = await import('./levelSystem');
-      const levelProgress = calculateLevelProgress(stats);
-
       res.json({ 
         stats, 
         analysisStatus,
         analysisSummary,
         statExplanations,
-        hasAnalysisData: analyses.length > 0,
-        levelProgress
+        hasAnalysisData: analyses.length > 0 
       });
     } catch (error) {
       console.error("Get user stats error:", error);
@@ -315,39 +310,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Get stat events error:", error);
       res.status(500).json({ message: "Failed to get stat events" });
-    }
-  });
-
-  // Level up user
-  app.post("/api/user/level-up", async (req, res) => {
-    const userId = req.session.userId;
-    if (!userId) {
-      return res.status(401).json({ message: "Not authenticated" });
-    }
-
-    try {
-      const currentStats = await storage.getUserStats(userId);
-      if (!currentStats) {
-        return res.status(404).json({ message: "User stats not found" });
-      }
-
-      // 레벨업 조건 체크
-      const { checkLevelUpConditions } = await import('./levelSystem');
-      const canLevelUp = checkLevelUpConditions(currentStats);
-
-      if (!canLevelUp) {
-        return res.status(400).json({ message: "Level up conditions not met" });
-      }
-
-      const updatedStats = await storage.levelUpUser(userId);
-      
-      res.json({ 
-        message: `축하합니다! 레벨 ${updatedStats.level}이 되었습니다!`,
-        stats: updatedStats
-      });
-    } catch (error) {
-      console.error("Level up error:", error);
-      res.status(500).json({ message: "Failed to level up" });
     }
   });
 

@@ -130,26 +130,8 @@ JSON만 출력하고 다른 설명은 없이 응답해주세요.
     const totalPoints = stats.intelligence + stats.creativity + stats.social + 
                        stats.physical + stats.emotional + stats.focus + stats.adaptability;
     
-    // 초기 레벨 계산 (더 정교한 계산)
-    let level = 1;
-    const { LEVEL_REQUIREMENTS } = await import('./levelSystem');
-    
-    // 현재 스탯으로 도달 가능한 최대 레벨 계산
-    for (let testLevel = 1; testLevel <= 15; testLevel++) {
-      const requirement = LEVEL_REQUIREMENTS[testLevel];
-      if (!requirement) break;
-      
-      const minStat = Math.min(stats.intelligence, stats.creativity, stats.social, 
-                              stats.physical, stats.emotional, stats.focus, stats.adaptability);
-      
-      if (minStat >= requirement.minStatValue && totalPoints >= requirement.totalPointsRequired) {
-        level = testLevel + 1; // 다음 레벨로 설정
-      } else {
-        break;
-      }
-    }
-    
-    level = Math.min(level, 15); // 최대 레벨 15로 제한
+    // 레벨 계산 (총 포인트 / 50으로 기본 레벨 계산)
+    const level = Math.max(1, Math.floor(totalPoints / 50));
     
     return {
       intelligence: Math.min(99, Math.max(1, stats.intelligence)),

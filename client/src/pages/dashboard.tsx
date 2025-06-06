@@ -1,6 +1,3 @@
-The code has been modified to include a level-up button, display level progress, and enhance stat displays with level requirements.
-```
-```replit_final_file
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { useState } from "react";
@@ -9,66 +6,20 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { CheckCircle, Clock, Plus, Sparkles, Trophy, Trash2, ArrowUp } from "lucide-react";
-
-function LevelUpButton() {
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
-
-  const levelUpMutation = useMutation({
-    mutationFn: async () => {
-      const response = await apiRequest("POST", "/api/user/level-up");
-      return response.json();
-    },
-    onSuccess: (data) => {
-      toast({
-        title: "레벨업 성공!",
-        description: data.message,
-      });
-      queryClient.invalidateQueries({ queryKey: ["/api/user/stats"] });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "레벨업 실패",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
-  });
-
-  return (
-    <Button
-      onClick={() => levelUpMutation.mutate()}
-      disabled={levelUpMutation.isPending}
-      className="btn-primary animate-pulse"
-    >
-      {levelUpMutation.isPending ? (
-        <div className="flex items-center space-x-2">
-          <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
-          <span>레벨업 중...</span>
-        </div>
-      ) : (
-        <div className="flex items-center space-x-2">
-          <ArrowUp className="h-4 w-4" />
-          <span>레벨업!</span>
-        </div>
-      )}
-    </Button>
-  );
-}
+import { Clock, TrendingUp, ChevronDown, ChevronUp } from "lucide-react";
 
 export default function Dashboard() {
+  const [, navigate] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [showAnalysisDetails, setShowAnalysisDetails] = useState(false);
-  const [, navigate] = useLocation();
-
+  
   const { data: user, isLoading: userLoading } = useQuery({
     queryKey: ["/api/user"],
     retry: false,
   });
 
-  const { data, isLoading: statsLoading, refetch: refetchStats } = useQuery({
+  const { data: statsData, isLoading: statsLoading, refetch: refetchStats } = useQuery({
     queryKey: ["/api/user/stats"],
     enabled: !!user?.user,
     retry: false,
@@ -123,7 +74,7 @@ export default function Dashboard() {
     );
   }
 
-  const stats = data?.stats || {
+  const stats = statsData?.stats || {
     level: 1,
     totalPoints: 0,
     intelligence: 0,
@@ -134,15 +85,15 @@ export default function Dashboard() {
     focus: 0,
     adaptability: 0,
   };
-
-  const analysisStatus = data?.analysisStatus || 'none';
-  const hasAnalysisData = data?.hasAnalysisData || false;
+  
+  const analysisStatus = statsData?.analysisStatus || 'none';
+  const hasAnalysisData = statsData?.hasAnalysisData || false;
   const progressPercentage = Math.min(100, (stats.totalPoints / 1000) * 100);
 
   // Helper function to get recent events for a specific stat
   const getRecentEventsForStat = (statName: string) => {
     if (!missionsData?.missions) return [];
-
+    
     const completedMissions = missionsData.missions
       .filter((mission: any) => mission.isCompleted && mission.completedAt)
       .filter((mission: any) => {
@@ -151,7 +102,7 @@ export default function Dashboard() {
       })
       .sort((a: any, b: any) => new Date(b.completedAt).getTime() - new Date(a.completedAt).getTime())
       .slice(0, 3);
-
+    
     return completedMissions.map((mission: any) => ({
       description: mission.title,
       date: mission.completedAt,
@@ -167,29 +118,15 @@ export default function Dashboard() {
             <h2 className="text-2xl font-bold text-primary text-center mb-8 uppercase">
               &gt; {user.user.nickname}의 캐릭터 상태창
             </h2>
-
+            
             {/* Character Level Display */}
             <div className="text-center mb-8">
               <div className="inline-block bg-background border-2 border-accent p-4">
                 <div className="text-accent text-sm uppercase">현재 레벨</div>
                 <div className="text-3xl font-bold text-foreground">Lv.{stats.level}</div>
                 <div className="text-secondary text-sm">
-                  총 스탯 포인트: {stats.totalPoints}
+                  {stats.totalPoints > 0 ? "성장하는 캐릭터" : "성장 준비자"}
                 </div>
-                {data.levelProgress && (
-                  <div className="mt-3 space-y-2">
-                    {data.levelProgress.currentRequirement && (
-                      <div className="text-xs text-muted-foreground space-y-1">
-                        <div>레벨업 조건:</div>
-                        <div>• 모든 스탯 {data.levelProgress.currentRequirement.minStatValue} 이상</div>
-                        <div>• 총 포인트 {data.levelProgress.currentRequirement.totalPointsRequired} 이상</div>
-                      </div>
-                    )}
-                    {data.levelProgress.canLevelUp && (
-                      <LevelUpButton />
-                    )}
-                  </div>
-                )}
               </div>
             </div>
 
@@ -198,23 +135,23 @@ export default function Dashboard() {
               <h3 className="text-foreground font-semibold mb-3 text-lg">
                 {stats.totalPoints > 0 ? "AI 분석 완료!" : "AI 분석 진행 중"}
               </h3>
-
+              
               {stats.totalPoints > 0 ? (
                 <div className="space-y-4">
                   <p className="text-muted-foreground text-sm">
                     AI가 당신을 분석해서 스탯을 분배했습니다
                   </p>
-
+                  
                   {/* AI Analysis Summary */}
-                  {data?.analysisSummary && (
+                  {statsData?.analysisSummary && (
                     <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
                       <div className="text-primary font-medium text-sm mb-3">당신에 대한 AI 분석</div>
                       <p className="text-foreground text-sm leading-relaxed mb-4">
-                        {data.analysisSummary}
+                        {statsData.analysisSummary}
                       </p>
-
+                      
                       {/* 각 스탯 설정 이유 - 토글 가능 */}
-                      {data.statExplanations && (
+                      {statsData.statExplanations && (
                         <div className="space-y-2">
                           <button
                             onClick={() => setShowAnalysisDetails(!showAnalysisDetails)}
@@ -227,10 +164,10 @@ export default function Dashboard() {
                               <ChevronDown className="h-3 w-3" />
                             )}
                           </button>
-
+                          
                           {showAnalysisDetails && (
                             <div className="space-y-1 text-xs animate-in slide-in-from-top-2 duration-200">
-                              {Object.entries(data.statExplanations).map(([key, explanation]) => (
+                              {Object.entries(statsData.statExplanations).map(([key, explanation]) => (
                                 <div key={key} className="text-muted-foreground leading-relaxed">
                                   • {explanation}
                                 </div>
@@ -241,7 +178,7 @@ export default function Dashboard() {
                       )}
                     </div>
                   )}
-
+                  
                   <div className="text-secondary text-sm">
                     총 성장 점수: {stats.totalPoints}점
                   </div>
@@ -259,58 +196,15 @@ export default function Dashboard() {
               )}
             </div>
 
-            {/* Level Progress Display */}
+            {/* Stats Display */}
             <div className="mb-8">
-              {data.levelProgress && data.levelProgress.currentRequirement ? (
-                <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    {/* 총 포인트 진행도 */}
-                    <div>
-                      <div className="flex justify-between text-sm mb-2">
-                        <span className="text-secondary">총 포인트</span>
-                        <span className="text-accent">
-                          {stats.totalPoints} / {data.levelProgress.currentRequirement.totalPointsRequired}
-                        </span>
-                      </div>
-                      <div className="progress-container h-3">
-                        <div 
-                          className="stat-bar h-full" 
-                          style={{ width: `${data.levelProgress.progressPercent}%` }}
-                        ></div>
-                      </div>
-                    </div>
-
-                    {/* 최소 스탯 진행도 */}
-                    <div>
-                      <div className="flex justify-between text-sm mb-2">
-                        <span className="text-secondary">최소 스탯</span>
-                        <span className="text-accent">
-                          {Math.min(stats.intelligence, stats.creativity, stats.social, stats.physical, stats.emotional, stats.focus, stats.adaptability)} / {data.levelProgress.currentRequirement.minStatValue}
-                        </span>
-                      </div>
-                      <div className="progress-container h-3">
-                        <div 
-                          className="stat-bar h-full" 
-                          style={{ width: `${data.levelProgress.minStatProgress}%` }}
-                        ></div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {data.levelProgress.canLevelUp && (
-                    <div className="text-center p-4 bg-green-100 dark:bg-green-900 rounded-lg border border-green-300">
-                      <p className="text-green-700 dark:text-green-300 text-sm font-medium mb-2">
-                        🎉 레벨업 조건을 만족했습니다!
-                      </p>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <div className="flex justify-between text-sm mb-2">
-                  <span className="text-secondary uppercase">총 성장 점수</span>
-                  <span className="text-accent">{stats.totalPoints}</span>
-                </div>
-              )}
+              <div className="flex justify-between text-sm mb-2">
+                <span className="text-secondary uppercase">총 성장 점수</span>
+                <span className="text-accent">{stats.totalPoints} / 1000</span>
+              </div>
+              <div className="progress-container h-4">
+                <div className="stat-bar h-full" style={{ width: `${progressPercentage}%` }}></div>
+              </div>
             </div>
 
             {/* 7 Stats Grid */}
@@ -327,55 +221,51 @@ export default function Dashboard() {
                 return (
                   <div key={index} className="clean-card p-4 cursor-pointer hover:shadow-lg transition-all group">
                     <div className="flex justify-between items-center mb-3">
-                      <span className="text-foreground font-medium">{stat.name}</span>
-                      {data.levelProgress && data.levelProgress.currentRequirement && 
-                       stat.value >= data.levelProgress.currentRequirement.minStatValue && (
-                        <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">✓ 조건 만족</span>
-                      )}
+                      <span className="text-foreground font-medium text-sm">
+                        {stat.name}
+                      </span>
+                      <span className="text-foreground font-semibold text-lg">{stat.value}</span>
                     </div>
-                    <div className="stat-display">
-                      <div className="flex justify-between items-center mb-2">
-                        <span className="text-2xl font-bold text-primary">{stat.value}</span>
-                        <div className="text-xs text-muted-foreground">
-                          {data.levelProgress && data.levelProgress.currentRequirement ? (
-                            <span>
-                              / {data.levelProgress.currentRequirement.minStatValue}+ (레벨업 조건)
-                            </span>
-                          ) : (
-                            <span>/ 99</span>
-                          )}
-                        </div>
-                      </div>
-                      <div className="progress-container h-2">
-                        <div className="stat-bar h-full" style={{ width: `${stat.value}%` }}></div>
-                        {data.levelProgress && data.levelProgress.currentRequirement && (
-                          <div 
-                            className="absolute top-0 h-full w-0.5 bg-yellow-400" 
-                            style={{ 
-                              left: `${(data.levelProgress.currentRequirement.minStatValue / 99) * 100}%` 
-                            }}
-                          ></div>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Recent events for this stat */}
-                    <div className="mt-3 space-y-1">
-                      <div className="text-xs text-muted-foreground">최근 활동:</div>
-                      {getRecentEventsForStat(stat.key).length > 0 ? (
-                        getRecentEventsForStat(stat.key).slice(0, 2).map((event, eventIndex) => (
-                          <div key={eventIndex} className="text-xs text-secondary bg-muted rounded px-2 py-1">
-                            {event.description}
-                          </div>
-                        ))
-                      ) : (
-                        <div className="text-xs text-muted-foreground italic">활동 기록 없음</div>
-                      )}
-                    </div>
-
-                    <div className="mt-2 text-xs text-muted-foreground group-hover:text-foreground transition-colors">
+                    
+                    <div className="text-muted-foreground text-xs leading-relaxed group-hover:text-foreground transition-colors mb-3">
                       {stat.description}
                     </div>
+                    
+                    <div className="progress-container h-2 mb-3">
+                      <div 
+                        className="progress-bar h-full" 
+                        style={{ width: `${stat.value}%` }}
+                      ></div>
+                    </div>
+
+                    {/* Recent Events for this stat */}
+                    {(() => {
+                      const recentEvents = getRecentEventsForStat(stat.key);
+                      return recentEvents.length > 0 && (
+                        <div className="mt-3 space-y-1">
+                          <div className="flex items-center gap-1 text-xs text-muted-foreground mb-2">
+                            <Clock className="h-3 w-3" />
+                            <span>최근 활동</span>
+                          </div>
+                          {recentEvents.map((event, eventIndex) => (
+                            <div key={eventIndex} className="flex items-center gap-2 text-xs">
+                              <Badge variant="outline" className="text-xs py-0 px-2 h-5">
+                                완료
+                              </Badge>
+                              <span className="text-muted-foreground truncate flex-1">
+                                {event.description}
+                              </span>
+                              <span className="text-muted-foreground text-xs">
+                                {new Date(event.date).toLocaleDateString('ko-KR', { 
+                                  month: 'short', 
+                                  day: 'numeric' 
+                                })}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      );
+                    })()}
                   </div>
                 );
               })}
@@ -393,7 +283,7 @@ export default function Dashboard() {
                   <div>&gt; 꾸준한 성장으로 레벨업</div>
                 </div>
               </div>
-
+              
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button 
                   className="btn-primary px-8 py-3"
