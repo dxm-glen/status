@@ -56,7 +56,7 @@ export function CyberpunkLayout({ children }: CyberpunkLayoutProps) {
               <img 
                 src={statusLogo} 
                 alt="Status 로고" 
-                className="h-8 w-auto"
+                className="h-8 w-8 rounded-lg bg-white p-1 shadow-sm"
               />
               <div className="text-2xl font-semibold text-foreground cursor-pointer hover:text-primary transition-colors">
                 Status

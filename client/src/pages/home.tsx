@@ -26,7 +26,7 @@ export default function Home() {
           <img 
             src={statusLogo} 
             alt="Status 로고" 
-            className="h-32 w-auto"
+            className="h-32 w-32 rounded-2xl bg-white p-4 shadow-lg"
           />
         </div>
         <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6">
