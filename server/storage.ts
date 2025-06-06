@@ -14,7 +14,7 @@ import type {
   InsertStatEvent
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, and, desc } from "drizzle-orm";
+import { eq, and, desc, sql } from "drizzle-orm";
 
 export interface IStorage {
   // User operations
@@ -217,9 +217,14 @@ export class DatabaseStorage implements IStorage {
       throw new Error("레벨업 조건을 만족하지 않습니다.");
     }
 
+    const currentStats = await this.getUserStats(userId);
+    if (!currentStats) {
+      throw new Error("사용자 스탯을 찾을 수 없습니다.");
+    }
+
     const [updatedStats] = await db.update(userStats)
       .set({ 
-        level: sql`${userStats.level} + 1`,
+        level: currentStats.level + 1,
         canLevelUp: false,
         updatedAt: new Date()
       })

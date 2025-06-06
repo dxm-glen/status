@@ -6,13 +6,36 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { Clock, TrendingUp, ChevronDown, ChevronUp } from "lucide-react";
+import { Clock, TrendingUp, ChevronDown, ChevronUp, Star } from "lucide-react";
 
 export default function Dashboard() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [showAnalysisDetails, setShowAnalysisDetails] = useState(false);
+
+  // Level up mutation
+  const levelUpMutation = useMutation({
+    mutationFn: async () => {
+      return await apiRequest("/api/user/level-up", {
+        method: "POST"
+      });
+    },
+    onSuccess: () => {
+      toast({
+        title: "레벨업 완료!",
+        description: "축하합니다! 다음 레벨로 올라갔습니다."
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/user/stats"] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "레벨업 실패",
+        description: error.message || "레벨업 조건을 만족하지 않습니다.",
+        variant: "destructive"
+      });
+    }
+  });
   
   const { data: user, isLoading: userLoading } = useQuery({
     queryKey: ["/api/user"],

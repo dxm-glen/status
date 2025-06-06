@@ -14,6 +14,7 @@ export interface UserStats {
   adaptability: number;
   totalPoints: number;
   level: number;
+  canLevelUp: boolean;
 }
 
 export interface QuestionnaireAnswers {

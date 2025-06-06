@@ -538,6 +538,67 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Level up user
+  app.post("/api/user/level-up", async (req, res) => {
+    const userId = req.session.userId;
+    if (!userId) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    try {
+      const canLevelUp = await storage.checkLevelUpEligibility(userId);
+      if (!canLevelUp) {
+        return res.status(400).json({ 
+          message: "레벨업 조건을 만족하지 않습니다. 모든 스탯이 레벨 요구치 이상이고 총합이 충분해야 합니다." 
+        });
+      }
+
+      const updatedStats = await storage.levelUpUser(userId);
+      res.json({ 
+        message: "레벨업 완료!", 
+        stats: updatedStats 
+      });
+    } catch (error) {
+      console.error("Level up error:", error);
+      res.status(500).json({ message: "레벨업 실패" });
+    }
+  });
+
+  // Check level up eligibility
+  app.get("/api/user/can-level-up", async (req, res) => {
+    const userId = req.session.userId;
+    if (!userId) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    try {
+      const canLevelUp = await storage.checkLevelUpEligibility(userId);
+      const stats = await storage.getUserStats(userId);
+      
+      if (stats) {
+        const requiredMinStat = stats.level * 50;
+        const requiredTotalStats = stats.level * 100;
+        const currentTotal = stats.intelligence + stats.creativity + stats.social + 
+                           stats.physical + stats.emotional + stats.focus + stats.adaptability;
+        
+        res.json({ 
+          canLevelUp,
+          requirements: {
+            minStatRequired: requiredMinStat,
+            totalStatsRequired: requiredTotalStats,
+            currentTotal,
+            currentLevel: stats.level
+          }
+        });
+      } else {
+        res.status(404).json({ message: "사용자 스탯을 찾을 수 없습니다" });
+      }
+    } catch (error) {
+      console.error("Check level up eligibility error:", error);
+      res.status(500).json({ message: "레벨업 조건 확인 실패" });
+    }
+  });
+
   // Logout
   app.post("/api/logout", (req, res) => {
     req.session.destroy((err) => {
