@@ -66,11 +66,18 @@ export function CyberpunkLayout({ children }: CyberpunkLayoutProps) {
                 <span className="text-muted-foreground text-sm hidden md:inline">
                   {user.user.nickname}님
                 </span>
-                <Link href="/dashboard">
-                  <Button className="btn-primary text-sm">
-                    대시보드
-                  </Button>
-                </Link>
+                <div className="flex space-x-2">
+                  <Link href="/dashboard">
+                    <Button className="btn-primary text-sm">
+                      대시보드
+                    </Button>
+                  </Link>
+                  <Link href="/missions">
+                    <Button variant="outline" className="text-sm">
+                      미션
+                    </Button>
+                  </Link>
+                </div>
                 <Button 
                   onClick={handleLogout}
                   className="btn-secondary text-sm"

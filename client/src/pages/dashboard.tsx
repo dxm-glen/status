@@ -220,25 +220,33 @@ export default function Dashboard() {
             </div>
 
             {/* Next Steps */}
-            <div className="text-center">
-              <div className="bg-background/30 border border-secondary p-4 mb-4">
+            <div className="text-center space-y-4">
+              <div className="bg-background/30 border border-secondary p-4">
                 <p className="text-secondary text-sm">
-                  📋 다음 단계 개발 예정:
+                  🎯 성장을 위한 다음 단계:
                 </p>
                 <div className="text-accent text-xs mt-2 space-y-1">
-                  <div>&gt; Phase 2: Bedrock AI 분석 및 스탯 생성</div>
-                  <div>&gt; Phase 3: 상태창 시각화 개선</div>
-                  <div>&gt; Phase 4: 일일 미션 시스템</div>
-                  <div>&gt; Phase 5: 일기 작성 및 분석</div>
+                  <div>&gt; 일일 미션으로 스탯 증가</div>
+                  <div>&gt; AI가 생성한 개인화된 미션 수행</div>
+                  <div>&gt; 꾸준한 성장으로 레벨업</div>
                 </div>
               </div>
               
-              <Button 
-                className="cyber-button-green px-8 py-3"
-                onClick={() => navigate("/")}
-              >
-                홈으로 돌아가기
-              </Button>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Button 
+                  className="btn-primary px-8 py-3"
+                  onClick={() => navigate("/missions")}
+                >
+                  🎯 미션 시작하기
+                </Button>
+                <Button 
+                  variant="outline"
+                  className="px-8 py-3"
+                  onClick={() => navigate("/")}
+                >
+                  홈으로 돌아가기
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>
