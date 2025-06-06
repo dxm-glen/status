@@ -468,8 +468,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     try {
       const missionId = parseInt(req.params.id);
-      // Note: We don't have a delete method in storage, so we'll mark as completed and hidden
-      // For now, we'll just return success
+      if (isNaN(missionId)) {
+        return res.status(400).json({ message: "Invalid mission ID" });
+      }
+
+      // Check if mission belongs to user
+      const missions = await storage.getUserMissions(userId);
+      const mission = missions.find(m => m.id === missionId);
+      
+      if (!mission) {
+        return res.status(404).json({ message: "Mission not found" });
+      }
+
+      if (mission.isCompleted) {
+        return res.status(400).json({ message: "Cannot delete completed mission" });
+      }
+
+      await storage.deleteMission(missionId);
+
       res.json({ message: "Mission deleted successfully" });
     } catch (error) {
       console.error("Delete mission error:", error);

@@ -114,6 +114,10 @@ export class DatabaseStorage implements IStorage {
     return updatedMission;
   }
 
+  async deleteMission(id: number): Promise<void> {
+    await db.delete(missions).where(eq(missions.id, id));
+  }
+
   async createDiaryEntry(entry: InsertDiaryEntry): Promise<DiaryEntry> {
     const [diaryEntry] = await db
       .insert(diaryEntries)
