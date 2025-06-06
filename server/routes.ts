@@ -313,6 +313,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get current level completed missions count
+  app.get("/api/user/missions/completed/current-level", async (req, res) => {
+    const userId = req.session.userId;
+    if (!userId) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    try {
+      const userStats = await storage.getUserStats(userId);
+      if (!userStats) {
+        return res.status(404).json({ message: "User stats not found" });
+      }
+
+      const missions = await storage.getUserMissions(userId);
+      const currentLevelCompletedMissions = missions.filter(mission => 
+        mission.isCompleted && mission.completedAtLevel === userStats.level
+      );
+      
+      res.json({ 
+        count: currentLevelCompletedMissions.length,
+        level: userStats.level 
+      });
+    } catch (error) {
+      console.error("Get current level completed missions count error:", error);
+      res.status(500).json({ message: "Failed to fetch current level completed missions count" });
+    }
+  });
+
   // Get recent stat events for dashboard
   app.get("/api/user/stat-events", async (req, res) => {
     const userId = req.session.userId;
