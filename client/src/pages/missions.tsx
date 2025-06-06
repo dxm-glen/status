@@ -277,9 +277,7 @@ export default function Missions() {
         {/* Header */}
         <div className="text-center space-y-4">
           <h1 className="text-3xl font-bold text-primary">퀘스트 목록</h1>
-          <p className="text-muted-foreground">
-            개인 성장을 위한 미션을 수행하고 스탯을 증가시키세요
-          </p>
+          <p className="text-muted-foreground">개인 성장을 위한 퀘스트를 수행하고 스탯을 증가시키세요</p>
         </div>
 
         {/* Mission Counter */}
