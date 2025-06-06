@@ -1,4 +1,4 @@
-import { users, userStats, userAnalysis, missions, diaryEntries, statEvents } from "@shared/schema";
+import { users, userStats, userAnalysis, missions, diaryEntries, statEvents, userProfiles } from "@shared/schema";
 import type { 
   User, 
   InsertUser, 
@@ -11,7 +11,9 @@ import type {
   DiaryEntry,
   InsertDiaryEntry,
   StatEvent,
-  InsertStatEvent
+  InsertStatEvent,
+  UserProfile,
+  InsertUserProfile
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc, sql } from "drizzle-orm";
@@ -48,6 +50,11 @@ export interface IStorage {
   // Level up operations
   checkLevelUpEligibility(userId: number): Promise<boolean>;
   levelUpUser(userId: number): Promise<UserStats>;
+  
+  // User profile operations
+  getUserProfile(userId: number): Promise<UserProfile | undefined>;
+  createUserProfile(profile: InsertUserProfile): Promise<UserProfile>;
+  updateUserProfile(userId: number, profile: Partial<UserProfile>): Promise<UserProfile>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -228,6 +235,31 @@ export class DatabaseStorage implements IStorage {
       .returning();
 
     return updatedStats;
+  }
+
+  async getUserProfile(userId: number): Promise<UserProfile | undefined> {
+    const [profile] = await db.select().from(userProfiles).where(eq(userProfiles.userId, userId));
+    return profile || undefined;
+  }
+
+  async createUserProfile(profile: InsertUserProfile): Promise<UserProfile> {
+    const [newProfile] = await db
+      .insert(userProfiles)
+      .values(profile)
+      .returning();
+    return newProfile;
+  }
+
+  async updateUserProfile(userId: number, profile: Partial<UserProfile>): Promise<UserProfile> {
+    const [updatedProfile] = await db
+      .update(userProfiles)
+      .set({ 
+        ...profile,
+        updatedAt: new Date()
+      })
+      .where(eq(userProfiles.userId, userId))
+      .returning();
+    return updatedProfile;
   }
 }
 

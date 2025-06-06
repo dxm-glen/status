@@ -1,7 +1,7 @@
 import type { Express, Request } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertUserSchema, insertUserAnalysisSchema } from "@shared/schema";
+import { insertUserSchema, insertUserAnalysisSchema, insertUserProfileSchema } from "@shared/schema";
 import { analyzeUserInput, generateMissions } from "./bedrock";
 import { z } from "zod";
 
@@ -610,6 +610,55 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Check level up eligibility error:", error);
       res.status(500).json({ message: "레벨업 조건 확인 실패" });
+    }
+  });
+
+  // Get user profile
+  app.get("/api/user/profile", async (req, res) => {
+    const userId = req.session.userId;
+    if (!userId) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    try {
+      const profile = await storage.getUserProfile(userId);
+      res.json({ profile: profile || { currentSelf: null, desiredSelf: null } });
+    } catch (error) {
+      console.error("Get profile error:", error);
+      res.status(500).json({ message: "Failed to fetch profile" });
+    }
+  });
+
+  // Create or update user profile
+  app.post("/api/user/profile", async (req, res) => {
+    const userId = req.session.userId;
+    if (!userId) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    try {
+      const profileData = insertUserProfileSchema.parse({
+        userId,
+        ...req.body
+      });
+
+      // Check if profile exists
+      const existingProfile = await storage.getUserProfile(userId);
+      
+      let profile;
+      if (existingProfile) {
+        profile = await storage.updateUserProfile(userId, req.body);
+      } else {
+        profile = await storage.createUserProfile(profileData);
+      }
+
+      res.json({ 
+        message: "Profile saved successfully",
+        profile 
+      });
+    } catch (error) {
+      console.error("Save profile error:", error);
+      res.status(500).json({ message: "Failed to save profile" });
     }
   });
 

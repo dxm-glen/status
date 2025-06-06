@@ -212,7 +212,7 @@ JSON만 출력하고 다른 설명은 없이 응답해주세요.
 }
 
 // 미션 생성을 위한 함수
-export async function generateMissions(userId: number, userStats: UserStats, count: number = 4): Promise<any[]> {
+export async function generateMissions(userId: number, userStats: UserStats, count: number = 4, userProfile?: { currentSelf?: string; desiredSelf?: string }): Promise<any[]> {
   const prompt = `사용자의 현재 스탯을 분석하여 개인 성장을 위한 일일 미션을 생성해주세요.
 
 현재 사용자 스탯:
