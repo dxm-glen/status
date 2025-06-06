@@ -362,8 +362,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "User stats not found" });
       }
 
+      // Get user profile for personalized missions
+      const userProfile = await storage.getUserProfile(userId);
+
       // Generate missions using Bedrock AI
-      const generatedMissions = await generateMissions(userId, userStats, missionsToGenerate);
+      const profileData = userProfile ? {
+        currentSelf: userProfile.currentSelf || undefined,
+        desiredSelf: userProfile.desiredSelf || undefined
+      } : undefined;
+      const generatedMissions = await generateMissions(userId, userStats, missionsToGenerate, profileData);
       
       // Save missions to database
       const savedMissions = [];

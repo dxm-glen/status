@@ -12,6 +12,7 @@ import Registration from "@/pages/registration";
 import Dashboard from "@/pages/dashboard";
 import Missions from "@/pages/missions";
 import Achievements from "@/pages/achievements";
+import Profile from "@/pages/profile";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -26,6 +27,7 @@ function Router() {
         <Route path="/dashboard" component={Dashboard} />
         <Route path="/missions" component={Missions} />
         <Route path="/achievements" component={Achievements} />
+        <Route path="/profile" component={Profile} />
         <Route component={NotFound} />
       </Switch>
     </CyberpunkLayout>

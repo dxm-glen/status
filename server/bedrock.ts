@@ -213,6 +213,16 @@ JSON만 출력하고 다른 설명은 없이 응답해주세요.
 
 // 미션 생성을 위한 함수
 export async function generateMissions(userId: number, userStats: UserStats, count: number = 4, userProfile?: { currentSelf?: string; desiredSelf?: string }): Promise<any[]> {
+  let profileContext = "";
+  if (userProfile?.currentSelf || userProfile?.desiredSelf) {
+    profileContext = `
+사용자 프로필 정보:
+${userProfile.currentSelf ? `현재 모습: ${userProfile.currentSelf}` : ""}
+${userProfile.desiredSelf ? `원하는 모습: ${userProfile.desiredSelf}` : ""}
+
+이 정보를 바탕으로 사용자의 현재 상황과 목표에 맞는 맞춤형 미션을 생성해주세요.`;
+  }
+
   const prompt = `사용자의 현재 스탯을 분석하여 개인 성장을 위한 일일 미션을 생성해주세요.
 
 현재 사용자 스탯:
@@ -223,6 +233,7 @@ export async function generateMissions(userId: number, userStats: UserStats, cou
 - 감성: ${userStats.emotional}/100
 - 집중력: ${userStats.focus}/100
 - 적응력: ${userStats.adaptability}/100
+${profileContext}
 
 총 ${count}개의 미션을 생성해주세요. 7개 스탯 중에서 랜덤하게 선택된 스탯을 대상으로 미션을 만들어주세요. 미션은 현실적이고 실행 가능해야 하며, 사용자의 현재 스탯 수준에 맞는 적절한 난이도여야 합니다.
 
