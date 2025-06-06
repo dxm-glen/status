@@ -84,9 +84,20 @@ export default function Achievements() {
   if (completedMissions.length === 0) {
     return (
       <div className="container mx-auto p-6">
-        <div className="flex items-center gap-2 mb-6">
-          <Trophy className="h-6 w-6 text-accent" />
-          <h1 className="text-2xl font-bold text-foreground">업적</h1>
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-2">
+            <Trophy className="h-6 w-6 text-accent" />
+            <h1 className="text-2xl font-bold text-foreground">업적</h1>
+          </div>
+          <Button
+            onClick={handleRefresh}
+            variant="outline"
+            size="sm"
+            className="flex items-center gap-2"
+          >
+            <RefreshCw className="h-4 w-4" />
+            새로고침
+          </Button>
         </div>
         <div className="text-center text-muted-foreground">
           아직 완료된 퀘스트가 없습니다. 퀘스트를 완료하여 업적을 쌓아보세요!
