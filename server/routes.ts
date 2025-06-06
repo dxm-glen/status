@@ -463,17 +463,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           statIncreases[stat] = randomIncrease;
         }
         
-        // Recalculate total points and level
-        const newStats = { ...currentStats, ...updates };
-        const totalPoints = newStats.intelligence + newStats.creativity + newStats.social + 
-                          newStats.physical + newStats.emotional + newStats.focus + newStats.adaptability;
-        const level = Math.max(1, Math.floor(totalPoints / 50));
-        
-        await storage.updateUserStats(userId, {
-          ...updates,
-          totalPoints,
-          level
-        });
+        // Update stats without auto-leveling (only calculate total points)
+        await storage.updateUserStats(userId, updates);
 
         // Create stat events for tracking recent changes
         try {
