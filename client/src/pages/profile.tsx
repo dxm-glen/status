@@ -5,13 +5,19 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 
 const profileSchema = z.object({
-  currentSelf: z.string().min(10, "현재 모습을 최소 10자 이상 작성해주세요.").optional(),
+  gender: z.string().optional(),
+  ageGroup: z.string().optional(),
+  affiliation: z.string().optional(),
+  interests: z.string().optional(),
+  additionalInfo: z.string().optional(),
   desiredSelf: z.string().min(10, "원하는 모습을 최소 10자 이상 작성해주세요.").optional(),
 });
 
@@ -29,7 +35,11 @@ export default function Profile() {
   const form = useForm<ProfileFormData>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
-      currentSelf: profileData?.profile?.currentSelf || "",
+      gender: profileData?.profile?.gender || "",
+      ageGroup: profileData?.profile?.ageGroup || "",
+      affiliation: profileData?.profile?.affiliation || "",
+      interests: profileData?.profile?.interests || "",
+      additionalInfo: profileData?.profile?.additionalInfo || "",
       desiredSelf: profileData?.profile?.desiredSelf || "",
     },
   });
@@ -38,7 +48,11 @@ export default function Profile() {
   useState(() => {
     if (profileData?.profile) {
       form.reset({
-        currentSelf: profileData.profile.currentSelf || "",
+        gender: profileData.profile.gender || "",
+        ageGroup: profileData.profile.ageGroup || "",
+        affiliation: profileData.profile.affiliation || "",
+        interests: profileData.profile.interests || "",
+        additionalInfo: profileData.profile.additionalInfo || "",
         desiredSelf: profileData.profile.desiredSelf || "",
       });
     }

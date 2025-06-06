@@ -76,7 +76,11 @@ export const statEvents = pgTable("stat_events", {
 export const userProfiles = pgTable("user_profiles", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }).unique(),
-  currentSelf: text("current_self"), // 현재 모습 설명
+  gender: text("gender"), // 성별: 남, 여, 기타
+  ageGroup: text("age_group"), // 연령대: 10대, 20대, 30대, 40대, 50대, 60대 이상
+  affiliation: text("affiliation"), // 학교/직장/팀 등 소속
+  interests: text("interests"), // 관심 영역
+  additionalInfo: text("additional_info"), // 추가 정보
   desiredSelf: text("desired_self"), // 원하는 모습 설명
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
