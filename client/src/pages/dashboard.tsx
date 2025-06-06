@@ -17,7 +17,7 @@ export default function Dashboard() {
   // Level up mutation
   const levelUpMutation = useMutation({
     mutationFn: async () => {
-      return await apiRequest("/api/user/level-up", "POST");
+      return await apiRequest("POST", "/api/user/level-up");
     },
     onSuccess: () => {
       toast({
