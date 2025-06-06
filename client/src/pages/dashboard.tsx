@@ -157,9 +157,7 @@ export default function Dashboard() {
                 variant="outline"
                 className="px-6 py-2"
                 onClick={() => navigate("/profile")}
-              >
-                👤 프로필 설정
-              </Button>
+              >👤 프로필 상세 추가</Button>
             </div>
             
             {/* Character Level Display */}
