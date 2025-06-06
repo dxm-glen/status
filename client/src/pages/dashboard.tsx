@@ -236,9 +236,7 @@ export default function Dashboard() {
                 <Button 
                   className="btn-primary px-8 py-3"
                   onClick={() => navigate("/missions")}
-                >
-                  🎯 미션 시작하기
-                </Button>
+                >🎯 퀘스트 목록보기</Button>
                 <Button 
                   variant="outline"
                   className="px-8 py-3"
