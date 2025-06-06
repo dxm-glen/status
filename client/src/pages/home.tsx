@@ -21,6 +21,13 @@ export default function Home() {
     <main className="container mx-auto px-4 py-8">
       {/* Welcome Section */}
       <section className="text-center mb-16">
+        <div className="mb-8 flex justify-center">
+          <img 
+            src="/attached_assets/Status.png" 
+            alt="Status 로고" 
+            className="h-32 w-auto"
+          />
+        </div>
         <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6">
           Status
         </h1>
@@ -28,13 +35,6 @@ export default function Home() {
           당신의 성장을 RPG 캐릭터처럼 시각화하세요
         </p>
         <p className="text-secondary text-sm">AI 분석을 통한 개인 스탯 생성 및 퀘스트 시스템</p>
-        
-        {/* Modern Icon */}
-        <div className="my-12 flex justify-center">
-          <div className="w-24 h-24 bg-primary/10 rounded-2xl flex items-center justify-center">
-            <div className="text-4xl">📊</div>
-          </div>
-        </div>
       </section>
       {/* Input Method Selection */}
       <section className="max-w-4xl mx-auto mb-16">
