@@ -9,7 +9,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { CyberpunkLayout } from "@/components/cyberpunk-layout";
 
 const profileSchema = z.object({
   currentSelf: z.string().min(10, "현재 모습을 최소 10자 이상 작성해주세요.").optional(),
@@ -81,22 +80,19 @@ export default function Profile() {
 
   if (isLoading) {
     return (
-      <CyberpunkLayout>
-        <div className="container mx-auto px-4 py-8">
-          <div className="flex items-center justify-center min-h-[400px]">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-400 mx-auto mb-4"></div>
-              <p className="text-gray-400">프로필 정보를 불러오는 중...</p>
-            </div>
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-400 mx-auto mb-4"></div>
+            <p className="text-gray-400">프로필 정보를 불러오는 중...</p>
           </div>
         </div>
-      </CyberpunkLayout>
+      </div>
     );
   }
 
   return (
-    <CyberpunkLayout>
-      <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
           <div className="mb-8">
             <h1 className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent mb-2">
@@ -198,7 +194,6 @@ export default function Profile() {
             </ul>
           </div>
         </div>
-      </div>
-    </CyberpunkLayout>
+    </div>
   );
 }
