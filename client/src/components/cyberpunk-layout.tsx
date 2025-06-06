@@ -77,12 +77,6 @@ export function CyberpunkLayout({ children }: CyberpunkLayoutProps) {
                       대시보드
                     </Button>
                   </Link>
-                  <Link href="/missions">
-                    <Button variant="outline" className="text-sm">퀘스트</Button>
-                  </Link>
-                  <Link href="/achievements">
-                    <Button variant="outline" className="text-sm">업적</Button>
-                  </Link>
                 </div>
                 <Button 
                   onClick={handleLogout}
