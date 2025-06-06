@@ -10,7 +10,7 @@ interface CyberpunkLayoutProps {
 }
 
 export function CyberpunkLayout({ children }: CyberpunkLayoutProps) {
-  const [location] = useLocation();
+  const [location, navigate] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   
@@ -25,11 +25,12 @@ export function CyberpunkLayout({ children }: CyberpunkLayoutProps) {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/user"] });
+      queryClient.clear();
       toast({
         title: "로그아웃 완료",
         description: "성공적으로 로그아웃되었습니다.",
       });
+      navigate("/");
     },
     onError: (error) => {
       toast({
