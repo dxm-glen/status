@@ -626,6 +626,82 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Regenerate AI analysis
+  app.post("/api/user/regenerate-analysis", handleAsyncRoute(async (req, res) => {
+    const userId = requireAuth(req, res);
+    if (!userId) return;
+
+    try {
+      // Get current user data
+      const user = await storage.getUser(userId);
+      const userProfile = await storage.getUserProfile(userId);
+      const completedMissions = await storage.getUserMissions(userId);
+      const currentStats = await storage.getUserStats(userId);
+
+      if (!user || !currentStats) {
+        return createErrorResponse(res, 404, "사용자 정보를 찾을 수 없습니다");
+      }
+
+      // Prepare comprehensive user data for analysis
+      const userData = {
+        nickname: user.nickname,
+        currentLevel: currentStats.level,
+        totalPoints: currentStats.totalPoints,
+        currentStats: {
+          intelligence: currentStats.intelligence,
+          creativity: currentStats.creativity,
+          social: currentStats.social,
+          physical: currentStats.physical,
+          emotional: currentStats.emotional,
+          focus: currentStats.focus,
+          adaptability: currentStats.adaptability
+        },
+        profile: userProfile ? {
+          desiredSelf: userProfile.desiredSelf,
+          ...(userProfile.gender && { gender: userProfile.gender }),
+          ...(userProfile.ageGroup && { ageGroup: userProfile.ageGroup }),
+          ...(userProfile.affiliation && { affiliation: userProfile.affiliation }),
+          ...(userProfile.interests && { interests: userProfile.interests }),
+          ...(userProfile.additionalInfo && { additionalInfo: userProfile.additionalInfo })
+        } : null,
+        completedQuests: completedMissions
+          .filter(m => m.isCompleted)
+          .map(m => ({
+            title: m.title,
+            difficulty: m.difficulty,
+            targetStats: m.targetStats,
+            completedAt: m.completedAt,
+            completedAtLevel: m.completedAtLevel
+          }))
+      };
+
+      // Call AI analysis with comprehensive data
+      const analysisResult = await analyzeUserInput('profile-update', userData);
+
+      // Create new analysis record
+      await storage.createUserAnalysis({
+        userId,
+        inputMethod: 'profile-update',
+        inputData: userData,
+        analysisResult: analysisResult,
+        summary: analysisResult.summary || null,
+        statExplanations: analysisResult.statExplanations || null
+      });
+
+      createSuccessResponse(res, {
+        message: "AI 분석이 성공적으로 재생성되었습니다",
+        analysis: {
+          summary: analysisResult.summary,
+          statExplanations: analysisResult.statExplanations
+        }
+      });
+
+    } catch (error) {
+      console.error("Regenerate analysis error:", error);
+      createErrorResponse(res, 500, "AI 분석 재생성 중 오류가 발생했습니다", error);
+    }
+  }));
+
   // Get user profile
   app.get("/api/user/profile", async (req, res) => {
     const userId = req.session.userId;

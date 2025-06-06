@@ -81,6 +81,30 @@ export default function Dashboard() {
     },
   });
 
+  const regenerateAnalysisMutation = useMutation({
+    mutationFn: async () => {
+      const response = await apiRequest("/api/user/regenerate-analysis", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" }
+      });
+      return response;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/user/stats"] });
+      toast({
+        title: "AI 분석 완료!",
+        description: "최신 정보를 바탕으로 새로운 분석이 생성되었습니다.",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "분석 실패",
+        description: error.message || "AI 분석 중 오류가 발생했습니다.",
+        variant: "destructive",
+      });
+    },
+  });
+
   // If not logged in, redirect to home
   if (!userLoading && !user?.user) {
     navigate("/");
@@ -192,7 +216,18 @@ export default function Dashboard() {
                   {/* AI Analysis Summary */}
                   {statsData?.analysisSummary && (
                     <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
-                      <div className="text-primary font-medium text-sm mb-3">당신에 대한 AI 분석</div>
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="text-primary font-medium text-sm">당신에 대한 AI 분석</div>
+                        <Button
+                          onClick={() => regenerateAnalysisMutation.mutate()}
+                          disabled={regenerateAnalysisMutation.isPending}
+                          variant="outline"
+                          size="sm"
+                          className="text-xs px-3 py-1 h-7"
+                        >
+                          {regenerateAnalysisMutation.isPending ? "분석 중..." : "🔄 재분석"}
+                        </Button>
+                      </div>
                       <p className="text-foreground text-sm leading-relaxed mb-4">
                         {statsData.analysisSummary}
                       </p>
