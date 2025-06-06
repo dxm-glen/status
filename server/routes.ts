@@ -63,8 +63,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
             req.session.questionnaireData.inputData
           );
 
-          // Extract summary from Bedrock response
-          const { summary, ...statsOnly } = generatedStats;
+          // Extract summary and explanations from Bedrock response
+          const { summary, statExplanations, ...statsOnly } = generatedStats;
           
           // Update analysis record with results
           await storage.createUserAnalysis({
@@ -73,6 +73,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             inputData: req.session.questionnaireData.inputData,
             analysisResult: { ...statsOnly, status: 'completed' },
             summary: summary || null,
+            statExplanations: statExplanations || null,
           });
 
           // Clear the session data
@@ -168,11 +169,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const latestAnalysis = analyses[analyses.length - 1];
       const analysisStatus = latestAnalysis?.analysisResult?.status || 'none';
       const analysisSummary = latestAnalysis?.summary || null;
+      const statExplanations = latestAnalysis?.statExplanations || null;
 
       res.json({ 
         stats, 
         analysisStatus,
         analysisSummary,
+        statExplanations,
         hasAnalysisData: analyses.length > 0 
       });
     } catch (error) {

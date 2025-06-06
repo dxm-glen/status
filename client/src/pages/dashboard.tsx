@@ -153,43 +153,60 @@ export default function Dashboard() {
             {/* 7 Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
               {[
-                { name: "🧠 지능 (INT)", value: stats.intelligence, color: "accent" },
-                { name: "🎨 창의성 (CRT)", value: stats.creativity, color: "primary" },
-                { name: "👥 사회성 (SOC)", value: stats.social, color: "secondary" },
-                { name: "💪 체력 (PHY)", value: stats.physical, color: "accent" },
-                { name: "❤️ 감성 (EMO)", value: stats.emotional, color: "primary" },
-                { name: "🎯 집중력 (FOC)", value: stats.focus, color: "secondary" },
-              ].map((stat, index) => (
-                <div key={index} className={`bg-background/50 p-4 border border-${stat.color}`}>
-                  <div className="flex justify-between mb-2">
-                    <span className={`text-${stat.color} uppercase text-sm font-bold`}>
-                      {stat.name}
-                    </span>
-                    <span className="text-foreground">{stat.value}</span>
+                { name: "🧠 지능", key: "intelligence", value: stats.intelligence, color: "primary" },
+                { name: "🎨 창의성", key: "creativity", value: stats.creativity, color: "accent" },
+                { name: "👥 사회성", key: "social", value: stats.social, color: "secondary" },
+                { name: "💪 체력", key: "physical", value: stats.physical, color: "primary" },
+                { name: "❤️ 감성", key: "emotional", value: stats.emotional, color: "accent" },
+                { name: "🎯 집중력", key: "focus", value: stats.focus, color: "secondary" },
+              ].map((stat, index) => {
+                const explanation = statsData?.statExplanations?.[stat.key];
+                return (
+                  <div key={index} className="clean-card p-4 cursor-pointer hover:shadow-lg transition-all group">
+                    <div className="flex justify-between items-center mb-3">
+                      <span className="text-foreground font-medium text-sm">
+                        {stat.name}
+                      </span>
+                      <span className="text-foreground font-semibold text-lg">{stat.value}</span>
+                    </div>
+                    
+                    <div className="progress-container h-2 mb-3">
+                      <div 
+                        className="progress-bar h-full" 
+                        style={{ width: `${stat.value}%` }}
+                      ></div>
+                    </div>
+                    
+                    {explanation && (
+                      <div className="text-muted-foreground text-xs leading-relaxed group-hover:text-foreground transition-colors">
+                        {explanation}
+                      </div>
+                    )}
                   </div>
-                  <div className="progress-container h-2">
-                    <div 
-                      className={`bg-${stat.color} h-full`} 
-                      style={{ width: `${stat.value}%` }}
-                    ></div>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
               
               {/* Adaptability - Full width */}
-              <div className="bg-background/50 p-4 border border-accent col-span-1 md:col-span-2">
-                <div className="flex justify-between mb-2">
-                  <span className="text-accent uppercase text-sm font-bold">
-                    🔄 적응력 (ADP)
+              <div className="clean-card p-4 cursor-pointer hover:shadow-lg transition-all group col-span-1 md:col-span-2">
+                <div className="flex justify-between items-center mb-3">
+                  <span className="text-foreground font-medium text-sm">
+                    🔄 적응력
                   </span>
-                  <span className="text-foreground">{stats.adaptability}</span>
+                  <span className="text-foreground font-semibold text-lg">{stats.adaptability}</span>
                 </div>
-                <div className="progress-container h-2">
+                
+                <div className="progress-container h-2 mb-3">
                   <div 
-                    className="bg-accent h-full" 
+                    className="progress-bar h-full" 
                     style={{ width: `${stats.adaptability}%` }}
                   ></div>
                 </div>
+                
+                {statsData?.statExplanations?.adaptability && (
+                  <div className="text-muted-foreground text-xs leading-relaxed group-hover:text-foreground transition-colors">
+                    {statsData.statExplanations.adaptability}
+                  </div>
+                )}
               </div>
             </div>
 

@@ -46,7 +46,16 @@ export async function analyzeUserInput(inputMethod: string, inputData: any): Pro
   "emotional": 숫자값,
   "focus": 숫자값,
   "adaptability": 숫자값,
-  "summary": "답변을 바탕으로 파악한 사용자의 성격과 특성을 2-3문장으로 요약"
+  "summary": "답변을 바탕으로 파악한 사용자의 성격과 특성을 2-3문장으로 요약",
+  "statExplanations": {
+    "intelligence": "지능 점수를 이 값으로 설정한 이유와 근거",
+    "creativity": "창의성 점수를 이 값으로 설정한 이유와 근거",
+    "social": "사회성 점수를 이 값으로 설정한 이유와 근거",
+    "physical": "체력 점수를 이 값으로 설정한 이유와 근거",
+    "emotional": "감성 점수를 이 값으로 설정한 이유와 근거",
+    "focus": "집중력 점수를 이 값으로 설정한 이유와 근거",
+    "adaptability": "적응력 점수를 이 값으로 설정한 이유와 근거"
+  }
 }
 
 JSON만 출력하고 다른 설명은 없이 응답해주세요.
@@ -70,7 +79,16 @@ ${gptResponse}
   "emotional": 숫자값,
   "focus": 숫자값,
   "adaptability": 숫자값,
-  "summary": "GPT 분석을 바탕으로 파악한 사용자의 성격과 특성을 2-3문장으로 요약"
+  "summary": "GPT 분석을 바탕으로 파악한 사용자의 성격과 특성을 2-3문장으로 요약",
+  "statExplanations": {
+    "intelligence": "지능 점수를 이 값으로 설정한 이유와 근거",
+    "creativity": "창의성 점수를 이 값으로 설정한 이유와 근거",
+    "social": "사회성 점수를 이 값으로 설정한 이유와 근거",
+    "physical": "체력 점수를 이 값으로 설정한 이유와 근거",
+    "emotional": "감성 점수를 이 값으로 설정한 이유와 근거",
+    "focus": "집중력 점수를 이 값으로 설정한 이유와 근거",
+    "adaptability": "적응력 점수를 이 값으로 설정한 이유와 근거"
+  }
 }
 
 JSON만 출력하고 다른 설명은 없이 응답해주세요.

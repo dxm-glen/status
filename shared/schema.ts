@@ -33,6 +33,7 @@ export const userAnalysis = pgTable("user_analysis", {
   inputData: json("input_data").notNull(), // questionnaire answers or GPT response
   analysisResult: json("analysis_result"), // Bedrock analysis result
   summary: text("summary"), // AI generated user personality summary
+  statExplanations: json("stat_explanations"), // AI explanations for each stat score
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
