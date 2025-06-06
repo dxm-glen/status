@@ -123,111 +123,56 @@ export default function AuthPage() {
               </p>
             </div>
 
-            <Tabs defaultValue="login" className="w-full max-w-md mx-auto lg:mx-0">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="login">로그인</TabsTrigger>
-                <TabsTrigger value="register">회원가입</TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="login">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>로그인</CardTitle>
-                    <CardDescription>
-                      기존 계정으로 로그인하여 대시보드에 접근하세요
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <form onSubmit={handleLogin} className="space-y-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="login-username">아이디</Label>
-                        <Input
-                          id="login-username"
-                          type="text"
-                          value={loginForm.username}
-                          onChange={(e) => setLoginForm(prev => ({ ...prev, username: e.target.value }))}
-                          placeholder="아이디를 입력하세요"
-                          required
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="login-password">비밀번호</Label>
-                        <Input
-                          id="login-password"
-                          type="password"
-                          value={loginForm.password}
-                          onChange={(e) => setLoginForm(prev => ({ ...prev, password: e.target.value }))}
-                          placeholder="비밀번호를 입력하세요"
-                          required
-                        />
-                      </div>
-                      <Button 
-                        type="submit" 
-                        className="w-full" 
-                        disabled={loginMutation.isPending}
-                      >
-                        {loginMutation.isPending ? "로그인 중..." : "로그인"}
-                      </Button>
-                    </form>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-              
-              <TabsContent value="register">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>회원가입</CardTitle>
-                    <CardDescription>
-                      새 계정을 만들어 AI 기반 성장 여정을 시작하세요
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <form onSubmit={handleRegister} className="space-y-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="register-username">아이디</Label>
-                        <Input
-                          id="register-username"
-                          type="text"
-                          value={registerForm.username}
-                          onChange={(e) => setRegisterForm(prev => ({ ...prev, username: e.target.value }))}
-                          placeholder="아이디를 입력하세요"
-                          required
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="register-nickname">닉네임</Label>
-                        <Input
-                          id="register-nickname"
-                          type="text"
-                          value={registerForm.nickname}
-                          onChange={(e) => setRegisterForm(prev => ({ ...prev, nickname: e.target.value }))}
-                          placeholder="닉네임을 입력하세요"
-                          required
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="register-password">비밀번호</Label>
-                        <Input
-                          id="register-password"
-                          type="password"
-                          value={registerForm.password}
-                          onChange={(e) => setRegisterForm(prev => ({ ...prev, password: e.target.value }))}
-                          placeholder="비밀번호를 입력하세요"
-                          required
-                        />
-                      </div>
-                      <Button 
-                        type="submit" 
-                        className="w-full"
-                        disabled={registerMutation.isPending}
-                      >
-                        {registerMutation.isPending ? "가입 중..." : "회원가입"}
-                      </Button>
-                    </form>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-            </Tabs>
+            <Card>
+              <CardHeader>
+                <CardTitle>로그인</CardTitle>
+                <CardDescription>
+                  기존 계정으로 로그인하여 대시보드에 접근하세요
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleLogin} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="login-username">아이디</Label>
+                    <Input
+                      id="login-username"
+                      type="text"
+                      value={loginForm.username}
+                      onChange={(e) => setLoginForm(prev => ({ ...prev, username: e.target.value }))}
+                      placeholder="아이디를 입력하세요"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="login-password">비밀번호</Label>
+                    <Input
+                      id="login-password"
+                      type="password"
+                      value={loginForm.password}
+                      onChange={(e) => setLoginForm(prev => ({ ...prev, password: e.target.value }))}
+                      placeholder="비밀번호를 입력하세요"
+                      required
+                    />
+                  </div>
+                  <Button 
+                    type="submit" 
+                    className="w-full" 
+                    disabled={loginMutation.isPending}
+                  >
+                    {loginMutation.isPending ? "로그인 중..." : "로그인"}
+                  </Button>
+                </form>
+                
+                <div className="mt-6 p-4 bg-muted/50 rounded-lg text-center">
+                  <p className="text-sm text-muted-foreground mb-2">
+                    계정이 없으신가요?
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    홈페이지에서 "질문지 작성하기" 또는 "GPT 분석 결과 입력하기"를 완료한 후 계정을 생성할 수 있습니다.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
           </div>
 
           {/* Right side - Hero section */}
