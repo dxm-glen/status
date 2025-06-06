@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useLocation } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -11,7 +12,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { Edit, Save, X } from "lucide-react";
+import { Edit, Save, X, ArrowRight } from "lucide-react";
 
 const profileSchema = z.object({
   gender: z.string().optional(),
@@ -27,6 +28,7 @@ type ProfileFormData = z.infer<typeof profileSchema>;
 export default function Profile() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [, navigate] = useLocation();
   const [isEditing, setIsEditing] = useState(false);
 
   // Fetch user profile
@@ -187,6 +189,29 @@ export default function Profile() {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Navigation to Missions */}
+            {hasProfile && (
+              <Card className="bg-gradient-to-r from-primary/10 to-blue-500/10 border-primary/20">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="font-semibold text-lg mb-2">🎯 개인화된 미션 생성</h3>
+                      <p className="text-muted-foreground text-sm">
+                        작성하신 프로필을 바탕으로 AI가 맞춤형 성장 미션을 제안합니다.
+                      </p>
+                    </div>
+                    <Button 
+                      onClick={() => navigate("/missions")}
+                      className="flex items-center gap-2 bg-primary hover:bg-primary/90"
+                    >
+                      미션 확인하기
+                      <ArrowRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </div>
         ) : (
           // Edit form
