@@ -10,6 +10,7 @@ import GptAnalysis from "@/pages/gpt-analysis";
 import Registration from "@/pages/registration";
 import Dashboard from "@/pages/dashboard";
 import Missions from "@/pages/missions";
+import AuthPage from "@/pages/auth-page";
 import NotFound from "@/pages/not-found";
 
 function Router() {
