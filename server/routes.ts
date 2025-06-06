@@ -1,104 +1,282 @@
-import type { Express } from "express";
+import type { Express, Request } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { insertUserSchema, insertUserAnalysisSchema } from "@shared/schema";
 import { analyzeUserInput, generateMissions } from "./bedrock";
-import { setupAuth } from "./auth";
-import { scrypt, randomBytes } from "crypto";
-import { promisify } from "util";
+import { z } from "zod";
 
-const scryptAsync = promisify(scrypt);
-
-async function hashPassword(password: string) {
-  const salt = randomBytes(16).toString("hex");
-  const buf = (await scryptAsync(password, salt, 64)) as Buffer;
-  return `${buf.toString("hex")}.${salt}`;
+// Extend Express Request type to include session
+declare module 'express-serve-static-core' {
+  interface Request {
+    session: {
+      userId?: number;
+      questionnaireData?: {
+        inputMethod: string;
+        inputData: any;
+      };
+      destroy(callback: (err?: any) => void): void;
+    };
+  }
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Setup authentication first
-  setupAuth(app);
-
-  // Session management middleware
-  app.use((req: any, res, next) => {
-    if (req.user && !req.session.userId) {
-      req.session.userId = req.user.id;
-    }
-    next();
-  });
-
-  // Submit questionnaire data
-  app.post("/api/submit-questionnaire", async (req, res) => {
-    const { answers, inputMethod } = req.body;
-    
-    if (!answers || !inputMethod) {
-      return res.status(400).json({ message: "Missing required fields" });
-    }
-
-    req.session.questionnaireData = {
-      inputMethod,
-      inputData: answers
-    };
-
-    res.json({ message: "Questionnaire submitted successfully" });
-  });
-
-  // GPT analysis submission
-  app.post("/api/submit-gpt-analysis", async (req, res) => {
-    const userId = req.session.userId;
-    if (!userId) {
-      return res.status(401).json({ message: "Not authenticated" });
-    }
-
+  // User registration
+  app.post("/api/register", async (req, res) => {
     try {
-      if (!req.session.questionnaireData) {
-        return res.status(400).json({ message: "No questionnaire data found" });
+      const userData = insertUserSchema.parse(req.body);
+      
+      // Check if username already exists
+      const existingUser = await storage.getUserByUsername(userData.username);
+      if (existingUser) {
+        return res.status(400).json({ message: "Username already exists" });
       }
 
-      // Analyze user input with AI
-      const analysisResult = await analyzeUserInput(
-        req.session.questionnaireData.inputMethod,
-        req.session.questionnaireData.inputData
-      );
+      // Create user
+      const user = await storage.createUser(userData);
+      
+      let generatedStats = {
+        intelligence: 0,
+        creativity: 0,
+        social: 0,
+        physical: 0,
+        emotional: 0,
+        focus: 0,
+        adaptability: 0,
+        totalPoints: 0,
+        level: 1,
+      };
 
-      // Create user stats
+      // If questionnaire data exists in session, analyze it with Bedrock and generate stats
+      if (req.session.questionnaireData) {
+        try {
+          // Create initial analysis record with pending status
+          const pendingAnalysis = await storage.createUserAnalysis({
+            userId: user.id,
+            inputMethod: req.session.questionnaireData.inputMethod,
+            inputData: req.session.questionnaireData.inputData,
+            analysisResult: { status: 'pending' },
+          });
+
+          // Analyze user input with Bedrock AI
+          generatedStats = await analyzeUserInput(
+            req.session.questionnaireData.inputMethod,
+            req.session.questionnaireData.inputData
+          );
+
+          // Extract summary and explanations from Bedrock response
+          const { summary, statExplanations, ...statsOnly } = generatedStats;
+          
+          // Update analysis record with results
+          await storage.createUserAnalysis({
+            userId: user.id,
+            inputMethod: req.session.questionnaireData.inputMethod,
+            inputData: req.session.questionnaireData.inputData,
+            analysisResult: { ...statsOnly, status: 'completed' },
+            summary: summary || null,
+            statExplanations: statExplanations || null,
+          });
+
+          // Clear the session data
+          delete req.session.questionnaireData;
+        } catch (error) {
+          console.error("Bedrock analysis failed:", error);
+          // Create failed analysis record
+          await storage.createUserAnalysis({
+            userId: user.id,
+            inputMethod: req.session.questionnaireData.inputMethod,
+            inputData: req.session.questionnaireData.inputData,
+            analysisResult: { status: 'failed', error: error.message },
+          });
+          delete req.session.questionnaireData;
+        }
+      }
+
+      // Create user stats (either generated by Bedrock or default zeros)
       await storage.createUserStats({
-        userId,
-        ...analysisResult
+        userId: user.id,
+        ...generatedStats,
       });
-
-      // Create analysis record
-      await storage.createUserAnalysis({
-        userId,
-        inputMethod: req.session.questionnaireData.inputMethod,
-        inputData: req.session.questionnaireData.inputData,
-        analysisResult,
-      });
-
-      delete req.session.questionnaireData;
 
       res.json({ 
-        message: "Analysis completed successfully",
-        stats: analysisResult
+        user: { id: user.id, username: user.username, nickname: user.nickname },
+        statsGenerated: req.session.questionnaireData !== undefined
       });
     } catch (error) {
-      console.error("Analysis submission error:", error);
-      res.status(500).json({ message: "Failed to submit analysis" });
+      console.error("Registration error:", error);
+      res.status(400).json({ message: "Invalid registration data" });
+    }
+  });
+
+  // User login
+  app.post("/api/login", async (req, res) => {
+    try {
+      const { username, password } = req.body;
+      
+      if (!username || !password) {
+        return res.status(400).json({ message: "Username and password required" });
+      }
+
+      const user = await storage.getUserByUsername(username);
+      if (!user || user.password !== password) {
+        return res.status(401).json({ message: "Invalid credentials" });
+      }
+
+      // Set session
+      (req.session as any).userId = user.id;
+      
+      res.json({ user: { id: user.id, username: user.username, nickname: user.nickname } });
+    } catch (error) {
+      console.error("Login error:", error);
+      res.status(500).json({ message: "Login failed" });
+    }
+  });
+
+  // Get current user
+  app.get("/api/user", async (req, res) => {
+    try {
+      const userId = (req.session as any).userId;
+      if (!userId) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      res.json({ user: { id: user.id, username: user.username, nickname: user.nickname } });
+    } catch (error) {
+      console.error("Get user error:", error);
+      res.status(500).json({ message: "Failed to get user" });
     }
   });
 
   // Get user stats
   app.get("/api/user/stats", async (req, res) => {
-    const userId = req.session.userId;
-    if (!userId) {
-      return res.status(401).json({ message: "Not authenticated" });
-    }
-
     try {
+      const userId = (req.session as any).userId;
+      if (!userId) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+
       const stats = await storage.getUserStats(userId);
-      res.json({ stats });
+      if (!stats) {
+        return res.status(404).json({ message: "Stats not found" });
+      }
+
+      // Get latest analysis status and summary
+      const analyses = await storage.getUserAnalysis(userId);
+      const latestAnalysis = analyses[analyses.length - 1];
+      const analysisStatus = latestAnalysis?.analysisResult?.status || 'none';
+      const analysisSummary = latestAnalysis?.summary || null;
+      const statExplanations = latestAnalysis?.statExplanations || null;
+
+      res.json({ 
+        stats, 
+        analysisStatus,
+        analysisSummary,
+        statExplanations,
+        hasAnalysisData: analyses.length > 0 
+      });
     } catch (error) {
-      console.error("Get stats error:", error);
-      res.status(500).json({ message: "Failed to fetch stats" });
+      console.error("Get user stats error:", error);
+      res.status(500).json({ message: "Failed to get user stats" });
+    }
+  });
+
+  // Retry analysis
+  app.post("/api/retry-analysis", async (req, res) => {
+    try {
+      const userId = (req.session as any).userId;
+      if (!userId) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+
+      // Get user's analysis data
+      const analyses = await storage.getUserAnalysis(userId);
+      if (analyses.length === 0) {
+        return res.status(404).json({ message: "No analysis data found" });
+      }
+
+      const latestAnalysis = analyses[analyses.length - 1];
+      
+      try {
+        // Retry Bedrock analysis
+        const generatedStats = await analyzeUserInput(
+          latestAnalysis.inputMethod,
+          latestAnalysis.inputData
+        );
+
+        // Update analysis record with results
+        await storage.createUserAnalysis({
+          userId,
+          inputMethod: latestAnalysis.inputMethod,
+          inputData: latestAnalysis.inputData,
+          analysisResult: { ...generatedStats, status: 'completed' },
+        });
+
+        // Update user stats
+        await storage.updateUserStats(userId, generatedStats);
+
+        res.json({ 
+          message: "Analysis completed successfully",
+          stats: generatedStats
+        });
+      } catch (error) {
+        console.error("Retry analysis failed:", error);
+        await storage.createUserAnalysis({
+          userId,
+          inputMethod: latestAnalysis.inputMethod,
+          inputData: latestAnalysis.inputData,
+          analysisResult: { status: 'failed', error: error.message },
+        });
+        res.status(500).json({ message: "Analysis failed again: " + error.message });
+      }
+    } catch (error) {
+      console.error("Retry analysis error:", error);
+      res.status(500).json({ message: "Failed to retry analysis" });
+    }
+  });
+
+  // Submit questionnaire (for non-authenticated users)
+  app.post("/api/submit-questionnaire", async (req, res) => {
+    try {
+      const { answers } = req.body;
+      if (!answers || typeof answers !== 'object') {
+        return res.status(400).json({ message: "Invalid questionnaire data" });
+      }
+
+      // Store in session for later use after registration
+      req.session.questionnaireData = {
+        inputMethod: 'questionnaire',
+        inputData: answers,
+      };
+      
+      res.json({ message: "Questionnaire submitted successfully" });
+    } catch (error) {
+      console.error("Questionnaire submission error:", error);
+      res.status(500).json({ message: "Failed to submit questionnaire" });
+    }
+  });
+
+  // Submit GPT analysis (for non-authenticated users)
+  app.post("/api/submit-gpt-analysis", async (req, res) => {
+    try {
+      const { gptResponse } = req.body;
+      if (!gptResponse || typeof gptResponse !== 'string') {
+        return res.status(400).json({ message: "Invalid GPT response data" });
+      }
+
+      // Store in session for later use after registration
+      req.session.questionnaireData = {
+        inputMethod: 'gpt-paste',
+        inputData: { gptResponse },
+      };
+      
+      res.json({ message: "GPT analysis submitted successfully" });
+    } catch (error) {
+      console.error("GPT analysis submission error:", error);
+      res.status(500).json({ message: "Failed to submit GPT analysis" });
     }
   });
 
@@ -118,7 +296,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Generate AI missions
+  // Get recent stat events for dashboard
+  app.get("/api/user/stat-events", async (req, res) => {
+    const userId = req.session.userId;
+    if (!userId) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    try {
+      const { stat } = req.query;
+      const events = await storage.getRecentStatEvents(userId, stat as string, 3);
+      res.json({ events });
+    } catch (error) {
+      console.error("Get stat events error:", error);
+      res.status(500).json({ message: "Failed to get stat events" });
+    }
+  });
+
+  // Generate AI missions for user
   app.post("/api/user/generate-missions", async (req, res) => {
     const userId = req.session.userId;
     if (!userId) {
@@ -126,36 +321,106 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
 
     try {
+      // Get current missions to check limit
       const currentMissions = await storage.getUserMissions(userId);
       const activeMissions = currentMissions.filter(m => !m.isCompleted);
       
-      if (activeMissions.length >= 10) {
-        return res.status(400).json({ message: "Maximum mission limit reached" });
+      const maxMissions = 10;
+      const currentActiveCount = activeMissions.length;
+      
+      if (currentActiveCount >= maxMissions) {
+        return res.status(400).json({ 
+          message: "Maximum mission limit reached",
+          currentCount: currentActiveCount,
+          maxCount: maxMissions
+        });
       }
 
+      // Calculate how many missions to generate
+      const missionsToGenerate = Math.min(4, maxMissions - currentActiveCount);
+
+      // Get user stats
       const userStats = await storage.getUserStats(userId);
       if (!userStats) {
-        return res.status(400).json({ message: "User stats not found" });
+        return res.status(404).json({ message: "User stats not found" });
       }
 
-      const newMissions = await generateMissions(userId, userStats, 4);
+      // Generate missions using Bedrock AI
+      const generatedMissions = await generateMissions(userId, userStats, missionsToGenerate);
       
-      for (const mission of newMissions) {
-        await storage.createMission({
+      // Save missions to database
+      const savedMissions = [];
+      for (const mission of generatedMissions) {
+        const savedMission = await storage.createMission({
           userId,
           title: mission.title,
           description: mission.description,
           difficulty: mission.difficulty,
           estimatedTime: mission.estimatedTime,
-          targetStats: mission.targetStats,
+          targetStats: Array.isArray(mission.targetStats) ? mission.targetStats : [mission.targetStat || mission.targetStats],
           isAiGenerated: true
         });
+        savedMissions.push(savedMission);
       }
 
-      res.json({ message: "4개의 AI 미션이 생성되었습니다!" });
+      res.json({ 
+        message: `${savedMissions.length}개의 AI 미션이 생성되었습니다`,
+        missions: savedMissions,
+        currentCount: currentActiveCount + savedMissions.length,
+        maxCount: maxMissions
+      });
     } catch (error) {
       console.error("Generate missions error:", error);
       res.status(500).json({ message: "Failed to generate missions" });
+    }
+  });
+
+  // Add custom mission
+  app.post("/api/user/missions", async (req, res) => {
+    const userId = req.session.userId;
+    if (!userId) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    try {
+      // Check mission limit
+      const currentMissions = await storage.getUserMissions(userId);
+      const activeMissions = currentMissions.filter(m => !m.isCompleted);
+      
+      const maxMissions = 10;
+      if (activeMissions.length >= maxMissions) {
+        return res.status(400).json({ 
+          message: "Maximum mission limit reached",
+          currentCount: activeMissions.length,
+          maxCount: maxMissions
+        });
+      }
+
+      const { title, description, difficulty, estimatedTime, targetStats } = req.body;
+      
+      if (!title || !description || !difficulty || !estimatedTime || !targetStats || !Array.isArray(targetStats) || targetStats.length === 0 || targetStats.length > 3) {
+        return res.status(400).json({ message: "Missing required fields or invalid targetStats (must be 1-3 stats)" });
+      }
+
+      const mission = await storage.createMission({
+        userId,
+        title,
+        description,
+        difficulty,
+        estimatedTime,
+        targetStats,
+        isAiGenerated: false
+      });
+
+      res.json({ 
+        message: "Mission created successfully",
+        mission,
+        currentCount: activeMissions.length + 1,
+        maxCount: maxMissions
+      });
+    } catch (error) {
+      console.error("Create mission error:", error);
+      res.status(500).json({ message: "Failed to create mission" });
     }
   });
 
@@ -173,21 +438,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
         completedAt: new Date()
       });
 
-      const statIncrease = { easy: 1, medium: 2, hard: 3 }[mission.difficulty] || 1;
+      // Calculate stat increase based on difficulty
+      const statIncrease = {
+        easy: 1,
+        medium: 2,
+        hard: 3
+      }[mission.difficulty] || 1;
+
+      // Update user stats - support multiple stats
       const currentStats = await storage.getUserStats(userId);
       const statIncreases: Record<string, number> = {};
       
       if (currentStats) {
         const updates: Record<string, number> = {};
+        
+        // Generate random stat increases for each target stat (1 to statIncrease points based on difficulty)
+        // Handle nested array format for targetStats
         const flatStats = Array.isArray(mission.targetStats[0]) ? mission.targetStats[0] : mission.targetStats;
         
         for (const stat of flatStats) {
           const currentValue = currentStats[stat as keyof typeof currentStats] as number;
-          const randomIncrease = Math.floor(Math.random() * statIncrease) + 1;
+          const randomIncrease = Math.floor(Math.random() * statIncrease) + 1; // 1 to statIncrease points
           updates[stat] = Math.min(99, currentValue + randomIncrease);
           statIncreases[stat] = randomIncrease;
         }
         
+        // Recalculate total points and level
         const newStats = { ...currentStats, ...updates };
         const totalPoints = newStats.intelligence + newStats.creativity + newStats.social + 
                           newStats.physical + newStats.emotional + newStats.focus + newStats.adaptability;
@@ -199,9 +475,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           level
         });
 
-        // Create stat events
-        for (const [stat, increase] of Object.entries(statIncreases)) {
-          try {
+        // Create stat events for tracking recent changes
+        try {
+          for (const [stat, increase] of Object.entries(statIncreases)) {
             await storage.createStatEvent({
               userId,
               statName: stat,
@@ -210,9 +486,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
               statChange: increase,
               sourceId: missionId,
             });
-          } catch (eventError) {
-            console.error("Failed to create stat event:", eventError);
           }
+        } catch (eventError) {
+          console.error("Failed to create stat events:", eventError);
+          // Continue even if stat events fail
         }
       }
 
@@ -227,37 +504,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Add custom mission
-  app.post("/api/user/missions", async (req, res) => {
-    const userId = req.session.userId;
-    if (!userId) {
-      return res.status(401).json({ message: "Not authenticated" });
-    }
-
-    try {
-      const { title, description, difficulty, estimatedTime, targetStats } = req.body;
-      
-      if (!title || !description || !difficulty || !estimatedTime || !targetStats) {
-        return res.status(400).json({ message: "Missing required fields" });
-      }
-
-      const mission = await storage.createMission({
-        userId,
-        title,
-        description,
-        difficulty,
-        estimatedTime,
-        targetStats,
-        isAiGenerated: false
-      });
-
-      res.json({ message: "Mission created successfully", mission });
-    } catch (error) {
-      console.error("Create mission error:", error);
-      res.status(500).json({ message: "Failed to create mission" });
-    }
-  });
-
   // Delete mission
   app.delete("/api/user/missions/:id", async (req, res) => {
     const userId = req.session.userId;
@@ -267,7 +513,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     try {
       const missionId = parseInt(req.params.id);
+      if (isNaN(missionId)) {
+        return res.status(400).json({ message: "Invalid mission ID" });
+      }
+
+      // Check if mission belongs to user
+      const missions = await storage.getUserMissions(userId);
+      const mission = missions.find(m => m.id === missionId);
+      
+      if (!mission) {
+        return res.status(404).json({ message: "Mission not found" });
+      }
+
+      if (mission.isCompleted) {
+        return res.status(400).json({ message: "Cannot delete completed mission" });
+      }
+
       await storage.deleteMission(missionId);
+
       res.json({ message: "Mission deleted successfully" });
     } catch (error) {
       console.error("Delete mission error:", error);
@@ -275,75 +538,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Custom registration endpoint for post-questionnaire signup
-  app.post("/api/register-with-analysis", async (req, res) => {
-    try {
-      const { username, nickname, password } = req.body;
-      
-      if (!username || !nickname || !password) {
-        return res.status(400).json({ message: "Missing required fields" });
+  // Logout
+  app.post("/api/logout", (req, res) => {
+    req.session.destroy((err) => {
+      if (err) {
+        return res.status(500).json({ message: "Logout failed" });
       }
-
-      // Check if questionnaire data exists in session
-      if (!req.session.questionnaireData) {
-        return res.status(400).json({ message: "No questionnaire data found. Please complete the questionnaire first." });
-      }
-
-      // Check if username already exists
-      const existingUser = await storage.getUserByUsername(username);
-      if (existingUser) {
-        return res.status(400).json({ message: "Username already exists" });
-      }
-
-      // Create user
-      const hashedPassword = await hashPassword(password);
-      const user = await storage.createUser({
-        username,
-        nickname,
-        password: hashedPassword
-      });
-
-      // Analyze questionnaire data and create stats
-      const analysisResult = await analyzeUserInput(
-        req.session.questionnaireData.inputMethod,
-        req.session.questionnaireData.inputData
-      );
-
-      await storage.createUserStats({
-        userId: user.id,
-        ...analysisResult
-      });
-
-      // Create analysis record
-      await storage.createUserAnalysis({
-        userId: user.id,
-        inputMethod: req.session.questionnaireData.inputMethod,
-        inputData: req.session.questionnaireData.inputData,
-        analysisResult,
-        summary: analysisResult.summary || '',
-        statExplanations: analysisResult.statExplanations || {}
-      });
-
-      // Auto-login the user
-      req.login(user, (err) => {
-        if (err) {
-          console.error("Login error:", err);
-          return res.status(500).json({ message: "Account created but login failed" });
-        }
-        
-        // Clear questionnaire data from session
-        delete req.session.questionnaireData;
-        
-        res.status(201).json({ 
-          message: "Account created and logged in successfully",
-          user: { id: user.id, username: user.username, nickname: user.nickname }
-        });
-      });
-
-    } catch (error) {
-      console.error("Registration with analysis error:", error);
-      res.status(500).json({ message: "Failed to create account" });
-    }
+      res.json({ message: "Logged out successfully" });
+    });
   });
 
   const httpServer = createServer(app);

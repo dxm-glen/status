@@ -37,8 +37,6 @@ export default function Home() {
             <div className="text-4xl">📊</div>
           </div>
         </div>
-
-
       </section>
       {/* Input Method Selection */}
       <section className="max-w-4xl mx-auto mb-16">

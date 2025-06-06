@@ -74,10 +74,7 @@ export default function Questionnaire() {
 
   const submitMutation = useMutation({
     mutationFn: async (answers: QuestionnaireAnswers) => {
-      const response = await apiRequest("POST", "/api/submit-questionnaire", { 
-        answers,
-        inputMethod: "questionnaire"
-      });
+      const response = await apiRequest("POST", "/api/submit-questionnaire", { answers });
       return response.json();
     },
     onSuccess: () => {

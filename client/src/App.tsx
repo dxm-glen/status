@@ -10,7 +10,6 @@ import GptAnalysis from "@/pages/gpt-analysis";
 import Registration from "@/pages/registration";
 import Dashboard from "@/pages/dashboard";
 import Missions from "@/pages/missions";
-import AuthPage from "@/pages/auth-page";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -18,7 +17,6 @@ function Router() {
     <CyberpunkLayout>
       <Switch>
         <Route path="/" component={Home} />
-        <Route path="/auth" component={AuthPage} />
         <Route path="/questionnaire" component={Questionnaire} />
         <Route path="/gpt-analysis" component={GptAnalysis} />
         <Route path="/registration" component={Registration} />

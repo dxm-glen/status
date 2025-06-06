@@ -85,7 +85,7 @@ export function CyberpunkLayout({ children }: CyberpunkLayoutProps) {
                 </Button>
               </>
             ) : (
-              <Link href="/auth">
+              <Link href="/">
                 <Button className="btn-primary">
                   로그인
                 </Button>
