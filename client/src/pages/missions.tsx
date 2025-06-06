@@ -128,7 +128,7 @@ export default function Missions() {
         .join(", ");
       
       toast({
-        title: "미션 완료!",
+        title: "퀘스트 완료!",
         description: `축하합니다! ${increases} 증가했습니다.`,
       });
       setCompletingMissionId(null);
@@ -137,7 +137,7 @@ export default function Missions() {
     },
     onError: (error: any) => {
       toast({
-        title: "미션 완료 실패",
+        title: "퀘스트 완료 실패",
         description: error.message,
         variant: "destructive",
       });
@@ -418,7 +418,7 @@ export default function Missions() {
         {/* Active Missions */}
         {activeMissions.length > 0 && (
           <div>
-            <h2 className="text-xl font-semibold mb-4 text-foreground">진행 중인 미션</h2>
+            <h2 className="text-xl font-semibold mb-4 text-foreground">진행 중인 퀘스트</h2>
             <div className="grid gap-4">
               {activeMissions.map((mission) => (
                 <Card key={mission.id} className="clean-card hover:shadow-lg transition-all">
@@ -489,7 +489,7 @@ export default function Missions() {
           <div>
             <h2 className="text-xl font-semibold mb-4 text-foreground flex items-center">
               <Trophy className="h-5 w-5 mr-2 text-yellow-500" />
-              완료된 미션
+              완료된 퀘스트
             </h2>
             <div className="grid gap-4">
               {completedMissions.map((mission) => (
@@ -532,9 +532,9 @@ export default function Missions() {
             <CardContent>
               <div className="space-y-4">
                 <div className="text-6xl">🎯</div>
-                <h3 className="text-xl font-semibold text-foreground">미션이 없습니다</h3>
+                <h3 className="text-xl font-semibold text-foreground">퀘스트가 없습니다</h3>
                 <p className="text-muted-foreground">
-                  AI가 생성한 개인화된 미션을 받거나 직접 미션을 추가해보세요
+                  AI가 생성한 개인화된 퀘스트를 받거나 직접 퀘스트를 추가해보세요
                 </p>
               </div>
             </CardContent>
@@ -545,9 +545,9 @@ export default function Missions() {
         <Dialog open={completingMissionId !== null} onOpenChange={() => setCompletingMissionId(null)}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>미션 완료 확인</DialogTitle>
+              <DialogTitle>퀘스트 완료 확인</DialogTitle>
               <DialogDescription>
-                이 미션을 통해 당신의 성장을 이뤄낸 것을 확인하겠습니까?
+                이 퀘스트를 통해 당신의 성장을 이뤄낸 것을 확인하겠습니까?
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>
@@ -569,9 +569,9 @@ export default function Missions() {
         <Dialog open={deletingMissionId !== null} onOpenChange={() => setDeletingMissionId(null)}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>미션 삭제 확인</DialogTitle>
+              <DialogTitle>퀘스트 삭제 확인</DialogTitle>
               <DialogDescription>
-                이 미션을 삭제하시겠습니까? 삭제된 미션은 복구할 수 없습니다.
+                이 퀘스트를 삭제하시겠습니까? 삭제된 퀘스트는 복구할 수 없습니다.
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>
