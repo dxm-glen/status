@@ -3,6 +3,8 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertUserSchema, insertUserAnalysisSchema, insertUserProfileSchema } from "@shared/schema";
 import { analyzeUserInput, generateMissions } from "./bedrock";
+import { getDefaultStats, calculateStatIncreases, DIFFICULTY_MULTIPLIER } from "./utils/stats";
+import { createErrorResponse, createSuccessResponse, handleAsyncRoute, requireAuth } from "./utils/response";
 import { z } from "zod";
 
 // Extend Express Request type to include session
@@ -34,17 +36,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Create user
       const user = await storage.createUser(userData);
       
-      let generatedStats = {
-        intelligence: 0,
-        creativity: 0,
-        social: 0,
-        physical: 0,
-        emotional: 0,
-        focus: 0,
-        adaptability: 0,
-        totalPoints: 0,
-        level: 1,
-      };
+      let generatedStats = getDefaultStats();
 
       // If questionnaire data exists in session, analyze it with Bedrock and generate stats
       if (req.session.questionnaireData) {
@@ -481,81 +473,63 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Complete mission
-  app.patch("/api/user/missions/:id/complete", async (req, res) => {
-    const userId = req.session.userId;
-    if (!userId) {
-      return res.status(401).json({ message: "Not authenticated" });
-    }
+  app.patch("/api/user/missions/:id/complete", handleAsyncRoute(async (req, res) => {
+    const userId = requireAuth(req, res);
+    if (!userId) return;
 
-    try {
-      const missionId = parseInt(req.params.id);
-      
-      // Get current user stats to record completion level
-      const currentStats = await storage.getUserStats(userId);
-      const completionLevel = currentStats ? currentStats.level : 1;
-      
-      const mission = await storage.updateMission(missionId, {
-        isCompleted: true,
-        completedAt: new Date(),
-        completedAtLevel: completionLevel
-      });
+    const missionId = parseInt(req.params.id);
+    
+    // Get current user stats to record completion level
+    const currentStats = await storage.getUserStats(userId);
+    const completionLevel = currentStats?.level || 1;
+    
+    const mission = await storage.updateMission(missionId, {
+      isCompleted: true,
+      completedAt: new Date(),
+      completedAtLevel: completionLevel
+    });
 
-      // Calculate stat increase based on difficulty
-      const statIncrease = {
-        easy: 1,
-        medium: 2,
-        hard: 3
-      }[mission.difficulty] || 1;
-
-      // Update user stats - support multiple stats
-      const userStats = await storage.getUserStats(userId);
-      const statIncreases: Record<string, number> = {};
+    // Update user stats if they exist
+    if (currentStats) {
+      // Handle nested array format for targetStats
+      const flatStats = Array.isArray(mission.targetStats[0]) 
+        ? mission.targetStats[0] 
+        : mission.targetStats;
       
-      if (userStats) {
-        const updates: Record<string, number> = {};
-        
-        // Generate random stat increases for each target stat (1 to statIncrease points based on difficulty)
-        // Handle nested array format for targetStats
-        const flatStats = Array.isArray(mission.targetStats[0]) ? mission.targetStats[0] : mission.targetStats;
-        
-        for (const stat of flatStats) {
-          const currentValue = userStats[stat as keyof typeof userStats] as number;
-          const randomIncrease = Math.floor(Math.random() * statIncrease) + 1; // 1 to statIncrease points
-          updates[stat] = currentValue + randomIncrease; // Remove 99 limit
-          statIncreases[stat] = randomIncrease;
-        }
-        
-        // Update stats without auto-leveling (only calculate total points)
+      const statIncreases = calculateStatIncreases(flatStats, mission.difficulty as 'easy' | 'medium' | 'hard');
+      const updates: Record<string, number> = {};
+      
+      for (const [stat, increase] of Object.entries(statIncreases)) {
+        const currentValue = currentStats[stat as keyof typeof currentStats] as number;
+        updates[stat] = currentValue + increase;
+      }
+      
       await storage.updateUserStats(userId, updates);
 
-        // Create stat events for tracking recent changes
-        try {
-          for (const [stat, increase] of Object.entries(statIncreases)) {
-            await storage.createStatEvent({
-              userId,
-              statName: stat,
-              eventType: 'mission_complete',
-              eventDescription: mission.title,
-              statChange: increase,
-              sourceId: missionId,
-            });
-          }
-        } catch (eventError) {
-          console.error("Failed to create stat events:", eventError);
-          // Continue even if stat events fail
+      // Create stat events for tracking
+      try {
+        for (const [stat, increase] of Object.entries(statIncreases)) {
+          await storage.createStatEvent({
+            userId,
+            statName: stat,
+            eventType: 'mission_complete',
+            eventDescription: mission.title,
+            statChange: increase,
+            sourceId: missionId,
+          });
         }
+      } catch (eventError) {
+        console.error("Failed to create stat events:", eventError);
       }
 
-      res.json({ 
-        message: "Mission completed successfully",
+      createSuccessResponse(res, {
         mission,
         statIncrease: statIncreases
-      });
-    } catch (error) {
-      console.error("Complete mission error:", error);
-      res.status(500).json({ message: "Failed to complete mission" });
+      }, "Mission completed successfully");
+    } else {
+      createSuccessResponse(res, { mission }, "Mission completed successfully");
     }
-  });
+  }));
 
   // Delete mission
   app.delete("/api/user/missions/:id", async (req, res) => {
