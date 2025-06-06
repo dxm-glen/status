@@ -115,10 +115,24 @@ export default function Dashboard() {
                   {/* AI Analysis Summary */}
                   {statsData?.analysisSummary && (
                     <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
-                      <div className="text-primary font-medium text-sm mb-2">당신에 대한 AI 분석</div>
-                      <p className="text-foreground text-sm leading-relaxed">
+                      <div className="text-primary font-medium text-sm mb-3">당신에 대한 AI 분석</div>
+                      <p className="text-foreground text-sm leading-relaxed mb-4">
                         {statsData.analysisSummary}
                       </p>
+                      
+                      {/* 각 스탯 설정 이유 */}
+                      {statsData.statExplanations && (
+                        <div className="space-y-2">
+                          <div className="text-primary font-medium text-xs mb-2">스탯 설정 근거:</div>
+                          <div className="space-y-1 text-xs">
+                            {Object.entries(statsData.statExplanations).map(([key, explanation]) => (
+                              <div key={key} className="text-muted-foreground leading-relaxed">
+                                • {explanation}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
                   
@@ -153,14 +167,13 @@ export default function Dashboard() {
             {/* 7 Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
               {[
-                { name: "🧠 지능", key: "intelligence", value: stats.intelligence, color: "primary" },
-                { name: "🎨 창의성", key: "creativity", value: stats.creativity, color: "accent" },
-                { name: "👥 사회성", key: "social", value: stats.social, color: "secondary" },
-                { name: "💪 체력", key: "physical", value: stats.physical, color: "primary" },
-                { name: "❤️ 감성", key: "emotional", value: stats.emotional, color: "accent" },
-                { name: "🎯 집중력", key: "focus", value: stats.focus, color: "secondary" },
+                { name: "🧠 지능", key: "intelligence", value: stats.intelligence, color: "primary", description: "논리적 사고, 문제 해결 능력, 학습 속도를 나타냅니다." },
+                { name: "🎨 창의성", key: "creativity", value: stats.creativity, color: "accent", description: "독창적 아이디어 창출, 예술적 감각, 혁신적 사고력을 나타냅니다." },
+                { name: "👥 사회성", key: "social", value: stats.social, color: "secondary", description: "대인관계 능력, 소통 스킬, 리더십과 협업 능력을 나타냅니다." },
+                { name: "💪 체력", key: "physical", value: stats.physical, color: "primary", description: "신체적 건강, 지구력, 활동성과 에너지 레벨을 나타냅니다." },
+                { name: "❤️ 감성", key: "emotional", value: stats.emotional, color: "accent", description: "감정 이해력, 공감 능력, 정서적 안정성을 나타냅니다." },
+                { name: "🎯 집중력", key: "focus", value: stats.focus, color: "secondary", description: "주의력, 집중 지속력, 목표 달성을 위한 몰입 능력을 나타냅니다." },
               ].map((stat, index) => {
-                const explanation = statsData?.statExplanations?.[stat.key];
                 return (
                   <div key={index} className="clean-card p-4 cursor-pointer hover:shadow-lg transition-all group">
                     <div className="flex justify-between items-center mb-3">
@@ -177,11 +190,9 @@ export default function Dashboard() {
                       ></div>
                     </div>
                     
-                    {explanation && (
-                      <div className="text-muted-foreground text-xs leading-relaxed group-hover:text-foreground transition-colors">
-                        {explanation}
-                      </div>
-                    )}
+                    <div className="text-muted-foreground text-xs leading-relaxed group-hover:text-foreground transition-colors">
+                      {stat.description}
+                    </div>
                   </div>
                 );
               })}
@@ -202,11 +213,9 @@ export default function Dashboard() {
                   ></div>
                 </div>
                 
-                {statsData?.statExplanations?.adaptability && (
-                  <div className="text-muted-foreground text-xs leading-relaxed group-hover:text-foreground transition-colors">
-                    {statsData.statExplanations.adaptability}
-                  </div>
-                )}
+                <div className="text-muted-foreground text-xs leading-relaxed group-hover:text-foreground transition-colors">
+                  변화하는 환경에 대한 유연성, 새로운 상황 적응 능력, 회복탄력성을 나타냅니다.
+                </div>
               </div>
             </div>
 
