@@ -143,6 +143,10 @@ export default function Missions() {
   const missions: Mission[] = missionsData?.missions || [];
   const activeMissions = missions.filter(m => !m.isCompleted);
   const completedMissions = missions.filter(m => m.isCompleted);
+  
+  const maxMissions = 10;
+  const currentActiveCount = activeMissions.length;
+  const isAtLimit = currentActiveCount >= maxMissions;
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
@@ -202,11 +206,23 @@ export default function Missions() {
           </p>
         </div>
 
+        {/* Mission Counter */}
+        <div className="text-center">
+          <p className="text-muted-foreground text-sm">
+            진행 중인 미션: {currentActiveCount} / {maxMissions}
+          </p>
+          {isAtLimit && (
+            <p className="text-destructive text-xs mt-1">
+              최대 미션 개수에 도달했습니다. 기존 미션을 완료해주세요.
+            </p>
+          )}
+        </div>
+
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Button
             onClick={() => generateMissionsMutation.mutate()}
-            disabled={generateMissionsMutation.isPending}
+            disabled={generateMissionsMutation.isPending || isAtLimit}
             className="btn-primary"
           >
             {generateMissionsMutation.isPending ? (
@@ -217,16 +233,20 @@ export default function Missions() {
             ) : (
               <div className="flex items-center space-x-2">
                 <Sparkles className="h-4 w-4" />
-                <span>AI 미션 생성</span>
+                <span>{isAtLimit ? "미션 한도 초과" : "AI 미션 생성"}</span>
               </div>
             )}
           </Button>
 
           <Dialog open={isAddingMission} onOpenChange={setIsAddingMission}>
             <DialogTrigger asChild>
-              <Button variant="outline" className="flex items-center space-x-2">
+              <Button 
+                variant="outline" 
+                className="flex items-center space-x-2"
+                disabled={isAtLimit}
+              >
                 <Plus className="h-4 w-4" />
-                <span>직접 추가</span>
+                <span>{isAtLimit ? "미션 한도 초과" : "직접 추가"}</span>
               </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-md">

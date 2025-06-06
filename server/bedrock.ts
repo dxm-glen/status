@@ -212,7 +212,7 @@ JSON만 출력하고 다른 설명은 없이 응답해주세요.
 }
 
 // 미션 생성을 위한 함수
-export async function generateMissions(userId: number, userStats: UserStats): Promise<any[]> {
+export async function generateMissions(userId: number, userStats: UserStats, count: number = 4): Promise<any[]> {
   const prompt = `사용자의 현재 스탯을 분석하여 개인 성장을 위한 일일 미션을 생성해주세요.
 
 현재 사용자 스탯:
@@ -224,7 +224,7 @@ export async function generateMissions(userId: number, userStats: UserStats): Pr
 - 집중력: ${userStats.focus}/100
 - 적응력: ${userStats.adaptability}/100
 
-총 4개의 미션을 생성해주세요. 7개 스탯 중에서 랜덤하게 선택된 스탯을 대상으로 미션을 만들어주세요. 미션은 현실적이고 실행 가능해야 하며, 사용자의 현재 스탯 수준에 맞는 적절한 난이도여야 합니다.
+총 ${count}개의 미션을 생성해주세요. 7개 스탯 중에서 랜덤하게 선택된 스탯을 대상으로 미션을 만들어주세요. 미션은 현실적이고 실행 가능해야 하며, 사용자의 현재 스탯 수준에 맞는 적절한 난이도여야 합니다.
 
 다음 형식으로 JSON을 생성해주세요:
 {
@@ -240,8 +240,8 @@ export async function generateMissions(userId: number, userStats: UserStats): Pr
 }
 
 미션 생성 가이드라인:
-1. 총 4개의 미션만 생성
-2. 7개 스탯 중에서 랜덤하게 4개 스탯을 선택하여 각각 1개씩 미션 생성
+1. 총 ${count}개의 미션만 생성
+2. 7개 스탯 중에서 랜덤하게 ${count}개 스탯을 선택하여 각각 1개씩 미션 생성
 3. 사용자의 현재 스탯이 낮으면 기초적인 미션, 높으면 도전적인 미션
 4. 실제로 수행 가능한 구체적인 활동
 5. 난이도는 현재 스탯 수준에 따라 조정 (1-30: easy, 31-70: medium, 71-100: hard)

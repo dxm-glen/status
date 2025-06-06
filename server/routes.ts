@@ -304,6 +304,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
 
     try {
+      // Get current missions to check limit
+      const currentMissions = await storage.getUserMissions(userId);
+      const activeMissions = currentMissions.filter(m => !m.isCompleted);
+      
+      const maxMissions = 10;
+      const currentActiveCount = activeMissions.length;
+      
+      if (currentActiveCount >= maxMissions) {
+        return res.status(400).json({ 
+          message: "Maximum mission limit reached",
+          currentCount: currentActiveCount,
+          maxCount: maxMissions
+        });
+      }
+
+      // Calculate how many missions to generate
+      const missionsToGenerate = Math.min(4, maxMissions - currentActiveCount);
+
       // Get user stats
       const userStats = await storage.getUserStats(userId);
       if (!userStats) {
@@ -311,7 +329,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Generate missions using Bedrock AI
-      const generatedMissions = await generateMissions(userId, userStats);
+      const generatedMissions = await generateMissions(userId, userStats, missionsToGenerate);
       
       // Save missions to database
       const savedMissions = [];
@@ -329,8 +347,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       res.json({ 
-        message: "AI missions generated successfully",
-        missions: savedMissions 
+        message: `${savedMissions.length}개의 AI 미션이 생성되었습니다`,
+        missions: savedMissions,
+        currentCount: currentActiveCount + savedMissions.length,
+        maxCount: maxMissions
       });
     } catch (error) {
       console.error("Generate missions error:", error);
@@ -346,6 +366,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
 
     try {
+      // Check mission limit
+      const currentMissions = await storage.getUserMissions(userId);
+      const activeMissions = currentMissions.filter(m => !m.isCompleted);
+      
+      const maxMissions = 10;
+      if (activeMissions.length >= maxMissions) {
+        return res.status(400).json({ 
+          message: "Maximum mission limit reached",
+          currentCount: activeMissions.length,
+          maxCount: maxMissions
+        });
+      }
+
       const { title, description, difficulty, estimatedTime, targetStat } = req.body;
       
       if (!title || !description || !difficulty || !estimatedTime || !targetStat) {
@@ -364,7 +397,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.json({ 
         message: "Mission created successfully",
-        mission 
+        mission,
+        currentCount: activeMissions.length + 1,
+        maxCount: maxMissions
       });
     } catch (error) {
       console.error("Create mission error:", error);
