@@ -130,8 +130,8 @@ JSON만 출력하고 다른 설명은 없이 응답해주세요.
     const totalPoints = stats.intelligence + stats.creativity + stats.social + 
                        stats.physical + stats.emotional + stats.focus + stats.adaptability;
     
-    // 레벨 계산 (총 포인트 / 100으로 기본 레벨 계산, 최소 레벨 1)
-    const level = Math.floor(totalPoints / 100) + 1;
+    // 레벨 계산 (총 포인트 / 100, 최소 레벨 1)
+    const level = Math.max(1, Math.floor(totalPoints / 100));
     
     return {
       intelligence: Math.min(99, Math.max(1, stats.intelligence)),
@@ -199,7 +199,7 @@ JSON만 출력하고 다른 설명은 없이 응답해주세요.
     }
     
     const totalPoints = Object.values(fallbackStats).reduce((sum, val) => sum + val, 0);
-    const level = Math.floor(totalPoints / 100) + 1;
+    const level = Math.max(1, Math.floor(totalPoints / 100));
     
     return {
       ...fallbackStats,

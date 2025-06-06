@@ -242,6 +242,7 @@ export default function Dashboard() {
                 <div className="text-xs space-y-1">
                   <div>• 총 스탯 합계 {(stats.level + 1) * 100} 이상</div>
                   <div className="text-accent">현재 총합: {stats.intelligence + stats.creativity + stats.social + stats.physical + stats.emotional + stats.focus + stats.adaptability}</div>
+                  <div className="text-muted-foreground">레벨 범위: 레벨 {stats.level} ({stats.level * 100}-{(stats.level + 1) * 100 - 1})</div>
                 </div>
               </div>
             </div>

@@ -83,7 +83,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateUserStats(userId: number, updates: Partial<UserStats>): Promise<UserStats> {
-    // Calculate total points and level if individual stats are updated
+    // Calculate total points if individual stats are updated (but don't auto-level up)
     if (updates.intelligence !== undefined || updates.creativity !== undefined || 
         updates.social !== undefined || updates.physical !== undefined ||
         updates.emotional !== undefined || updates.focus !== undefined ||
@@ -95,11 +95,8 @@ export class DatabaseStorage implements IStorage {
         const totalPoints = newStats.intelligence + newStats.creativity + newStats.social + 
                            newStats.physical + newStats.emotional + newStats.focus + newStats.adaptability;
         
-        // Calculate level based on total stats (레벨 1: 0-99, 레벨 2: 100-199, 레벨 3: 200-299, 등)
-        const calculatedLevel = Math.floor(totalPoints / 100) + 1;
-        
         updates.totalPoints = totalPoints;
-        updates.level = calculatedLevel;
+        // Don't auto-update level - only through manual level up
       }
     }
 
@@ -202,11 +199,12 @@ export class DatabaseStorage implements IStorage {
     const totalStatsSum = stats.intelligence + stats.creativity + stats.social + 
                          stats.physical + stats.emotional + stats.focus + stats.adaptability;
     
-    // 다음 레벨을 위한 필요 스탯 (레벨 * 100)
-    const nextLevel = stats.level + 1;
-    const requiredTotalStats = nextLevel * 100;
+    // 현재 레벨에서 다음 레벨로 올라갈 수 있는지 확인
+    // 레벨 1: 0-99, 레벨 2: 100-199, 레벨 3: 200-299, etc.
+    const currentLevelThreshold = stats.level * 100;
+    const nextLevelThreshold = (stats.level + 1) * 100;
 
-    return totalStatsSum >= requiredTotalStats;
+    return totalStatsSum >= nextLevelThreshold;
   }
 
   async levelUpUser(userId: number): Promise<UserStats> {
