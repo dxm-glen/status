@@ -15,6 +15,31 @@ Status RPG AI 프로젝트를 GitHub에 업로드하는 방법입니다.
 
 프로젝트 루트 디렉토리에서 다음 명령어를 실행하세요:
 
+**Replit 환경에서 업로드하는 경우:**
+1. Replit Shell을 열고 다음 명령어 실행:
+
+```bash
+# Git 저장소 초기화 (기존 .git 폴더가 있다면 삭제 후)
+rm -rf .git
+git init
+
+# 모든 파일 스테이징
+git add .
+
+# 초기 커밋
+git commit -m "Initial commit: Status RPG AI v1.0"
+
+# GitHub 저장소를 원격으로 추가 (your-username을 실제 GitHub 사용자명으로 변경)
+git remote add origin https://github.com/your-username/status-rpg-ai.git
+
+# 메인 브랜치로 설정
+git branch -M main
+
+# GitHub에 푸시
+git push -u origin main
+```
+
+**로컬 환경에서 업로드하는 경우:**
 ```bash
 # Git 저장소 초기화
 git init
@@ -25,7 +50,7 @@ git add .
 # 초기 커밋
 git commit -m "Initial commit: Status RPG AI v1.0"
 
-# GitHub 저장소를 원격으로 추가 (your-username을 실제 GitHub 사용자명으로 변경)
+# GitHub 저장소를 원격으로 추가
 git remote add origin https://github.com/your-username/status-rpg-ai.git
 
 # 메인 브랜치로 설정
