@@ -116,10 +116,10 @@ export default function Login() {
               <p className="text-muted-foreground text-sm">
                 계정이 없으신가요?{" "}
                 <button
-                  onClick={() => navigate("/register")}
+                  onClick={() => navigate("/")}
                   className="text-primary hover:underline"
                 >
-                  회원가입
+                  홈화면에서 캐릭터를 생성하세요
                 </button>
               </p>
             </div>
